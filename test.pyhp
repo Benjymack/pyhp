@@ -1,0 +1,22 @@
+<h1>Hello</h1>
+<pyhp>
+import math
+from pyhp import include
+
+include('other.pyhp')
+
+def thing():
+    print("Hello")
+
+for i in range(10):
+    print(i)
+    thing()</pyhp>
+<div>
+    <italic>
+        <pyhp>
+if True:
+    thing()
+    print(math.sqrt(2))
+        </pyhp>
+    </italic>
+</div>
