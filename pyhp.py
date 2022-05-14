@@ -14,12 +14,25 @@ __all__ = ['load_file', 'run_code_block', 'run_parsed_code', 'include']
 
 # Constants
 TAG_NAME = 'pyhp'
+FILE_EXTENSION = TAG_NAME
 REMOVE_INITIAL_INDENTATION = True
 
 
 # Functions
 def load_file(file_path: str) -> BeautifulSoup:
-    
+    """
+    Loads a pphp file and parses it, returning the BeautifulSoup object.
+    """
+
+    # Check if the pyhp file with that name exists
+    if not os.path.exists(file_path):
+        possible_path = f'{file_path}.{FILE_EXTENSION}'
+        if os.path.exists(possible_path):
+            file_path = possible_path
+        else:
+            raise FileNotFoundError(f'File not found: {file_path}')
+
+    # Open and parse the file
     with open(file_path, 'r') as f:
         return BeautifulSoup(f.read(), 'lxml')
 
@@ -27,6 +40,10 @@ def load_file(file_path: str) -> BeautifulSoup:
 def run_code_block(code_block: str,
                    globals_: dict,
                    locals_: dict) -> (bool, str):
+    """
+    Runs the code block, in the given globals and locals environment.
+    Returns a tuple of (success, output).
+    """
     output = StringIO()
     exception = None
 
@@ -45,6 +62,9 @@ def run_code_block(code_block: str,
 
 
 def run_parsed_code(parsed_code: BeautifulSoup) -> str:
+    """
+    Runs the parsed pyhp code, returning the html output.
+    """
     output_code = deepcopy(parsed_code)
 
     globals_ = {}
@@ -78,4 +98,7 @@ def run_parsed_code(parsed_code: BeautifulSoup) -> str:
 
 
 def include(file_path: str):
-    print(run_parsed_code(load_file(file_path)))
+    """
+    Include a pyhp file inside the current pyhp file.
+    """
+    print(run_parsed_code(load_file(file_path)), end='')

@@ -1,0 +1,17 @@
+Hello world.
+
+Here is the contents of test.pyhp:
+<pyhp>
+from pyhp import include
+
+include('test.pyhp')
+
+</pyhp>
+
+And it can generate javascript files as well:
+<pyhp>
+
+for i in range(10):
+    print(f'<script>alert({i})</script>')
+
+</pyhp>
