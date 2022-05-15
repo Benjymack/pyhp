@@ -6,12 +6,8 @@ from pyhp import include
 
 include('test.pyhp')
 
-</pyhp>
-
-And it can generate javascript files as well:
-<pyhp>
-
-for i in range(10):
-    print(f'<script>alert({i})</script>')
+print('Cookies:', _COOKIE, end='<br>')
+print('Get:', _GET, end='<br>')
+print('Post:', _POST, end='<br>')
 
 </pyhp>

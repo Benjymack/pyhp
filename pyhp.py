@@ -1,4 +1,6 @@
 # Imports
+from typing import Optional
+
 from bs4 import BeautifulSoup
 from io import StringIO
 from contextlib import redirect_stdout
@@ -34,7 +36,7 @@ def load_file(file_path: str) -> BeautifulSoup:
 
     # Open and parse the file
     with open(file_path, 'r') as f:
-        return BeautifulSoup(f.read(), 'lxml')
+        return BeautifulSoup(f.read(), 'html.parser')
 
 
 def run_code_block(code_block: str,
@@ -58,16 +60,21 @@ def run_code_block(code_block: str,
     if exception is None:
         return True, output.getvalue()
     else:
-        return False, exception
+        return False, f'<pre>{exception}</pre>'
 
 
-def run_parsed_code(parsed_code: BeautifulSoup) -> str:
+def run_parsed_code(parsed_code: BeautifulSoup,
+                    initial_globals: Optional[dict] = None,
+                    debug: bool = False) -> str:
     """
     Runs the parsed pyhp code, returning the html output.
     """
     output_code = deepcopy(parsed_code)
 
-    globals_ = {}
+    if initial_globals is None:
+        globals_ = {}
+    else:
+        globals_ = initial_globals
     locals_ = {}
 
     code_blocks = output_code.select(f'{TAG_NAME}:not({TAG_NAME} *)')
@@ -88,11 +95,13 @@ def run_parsed_code(parsed_code: BeautifulSoup) -> str:
         success, output = run_code_block(code_text,
                                          globals_, locals_)
 
-        if not success:
-            sys.stderr.write(output)
-            return ''
+        if not success and not debug:
+            raise RuntimeError(output)
 
         code_block.replace_with(BeautifulSoup(output, 'html.parser'))
+
+        if not success:
+            break
 
     return str(output_code)
 
