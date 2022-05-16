@@ -11,12 +11,9 @@ if __name__ == '__main__':
     # Setup the flask application
     app = Flask(__name__)
 
-    @app.route('/', defaults={'path': ''})
+    @app.route('/', defaults={'path': 'index'})
     @app.route('/<path:path>')
     def catch_all(path):
-        if path == '':
-            path = 'index'
-
         # Get information for initial_globals variables
         predefined = {
             '_COOKIE': request.cookies,
