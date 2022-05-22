@@ -1,0 +1,13 @@
+Hello world.
+
+Here is the contents of test.pyhp:
+<pyhp>
+pyhp.include('test.pyhp')
+
+print(pyhp.current_dir, end='<br>')
+
+print('Cookies:', pyhp.cookies, end='<br>')
+print('Get:', pyhp.get, end='<br>')
+print('Post:', pyhp.post, end='<br>')
+
+</pyhp>

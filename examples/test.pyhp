@@ -1,9 +1,9 @@
 <h1>Hello</h1>
 <pyhp>
 import math
-from pyhp import include
 
-include('other.pyhp')
+pyhp.include('subfolder/other.pyhp')
+print(pyhp.current_dir, end='<br>')
 
 def thing():
     print("Hello")
