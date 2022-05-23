@@ -1,9 +1,10 @@
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
+from bs4.element import ResultSet
 from io import StringIO
 from contextlib import redirect_stdout
 from copy import deepcopy
 from traceback import format_exc
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 try:
     from pyhp.text_processing import prepare_code_text
@@ -21,20 +22,12 @@ PYHP_TAG = 'pyhp'
 def run_parsed_code(dom: BeautifulSoup,
                     pyhp_class: 'Pyhp') -> str:
     output_dom = deepcopy(dom)
+    code_blocks = get_code_blocks(output_dom)
 
     globals_, locals_ = prepare_globals_locals(pyhp_class)
 
-    code_blocks = output_dom.select(f'{PYHP_TAG}:not({PYHP_TAG} *)')
-
     for code_block in code_blocks:
-        code_text = prepare_code_text(code_block)
-
-        success, output = run_code_text(code_text, globals_, locals_)
-
-        if not success and not pyhp_class.debug:
-            raise RuntimeError(output)
-
-        code_block.replace_with(BeautifulSoup(output, 'html.parser'))
+        success = run_code_block(code_block, globals_, locals_, pyhp_class)
 
         if not success:
             break
@@ -42,14 +35,28 @@ def run_parsed_code(dom: BeautifulSoup,
     return str(output_dom)
 
 
-def run_code_text(code_block: str,
+def run_code_block(code_block: Tag, globals_: dict[str, Any],
+                   locals_: dict[str, Any], pyhp_class: 'Pyhp') -> bool:
+    code_text = prepare_code_text(code_block)
+
+    success, output = run_code_text(code_text, globals_, locals_)
+
+    if not success and not pyhp_class.debug:
+        raise RuntimeError(output)
+
+    code_block.replace_with(BeautifulSoup(output, 'html.parser'))
+
+    return success
+
+
+def run_code_text(code_text: str,
                   globals_: dict,
                   locals_: dict) -> (bool, str):
     output_text = StringIO()
 
     try:
         with redirect_stdout(output_text):
-            exec(code_block, globals_, locals_)
+            exec(code_text, globals_, locals_)
     except Exception:
         success = False
         output = f'<pre>{format_exc()}</pre>'
@@ -60,7 +67,12 @@ def run_code_text(code_block: str,
     return success, output
 
 
-def prepare_globals_locals(pyhp_class: 'Pyhp') -> (dict, dict):
+def get_code_blocks(dom: BeautifulSoup) -> ResultSet[Tag]:
+    return dom.select(f'{PYHP_TAG}:not({PYHP_TAG} *)')
+
+
+def prepare_globals_locals(pyhp_class: 'Pyhp') -> (dict[str, Any],
+                                                   dict[str, Any]):
     globals_ = {'pyhp': pyhp_class}
     locals_ = {}
 
