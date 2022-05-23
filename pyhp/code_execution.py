@@ -7,13 +7,13 @@ from traceback import format_exc
 from typing import TYPE_CHECKING, Any
 
 try:
-    from pyhp.text_processing import prepare_code_text
+    from pyhp.text_processing import prepare_code_block
 except ImportError:
-    from text_processing import prepare_code_text
+    from text_processing import prepare_code_block
 
 
 if TYPE_CHECKING:
-    from pyhp import Pyhp
+    from .pyhp import Pyhp
 
 
 PYHP_TAG = 'pyhp'
@@ -37,7 +37,7 @@ def run_parsed_code(dom: BeautifulSoup,
 
 def run_code_block(code_block: Tag, globals_: dict[str, Any],
                    locals_: dict[str, Any], pyhp_class: 'Pyhp') -> bool:
-    code_text = prepare_code_text(code_block)
+    code_text = prepare_code_block(code_block)
 
     success, output = run_code_text(code_text, globals_, locals_)
 

@@ -21,7 +21,6 @@ def get_pyhp_file_path(absolute_path: str) -> str:
     if os.path.exists(absolute_path):
         return absolute_path
     else:
-        # TODO: Improve to check if it already has a file extension
         possible_path = f'{absolute_path}.{PYHP_FILE_EXTENSION}'
         if os.path.exists(possible_path):
             return possible_path
