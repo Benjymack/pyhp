@@ -1,0 +1,7 @@
+These are all the cookies:
+<ul>
+    <pyhp>
+    for cookie_name, cookie_value in pyhp.cookies.items():
+        print(f'<li>{cookie_name}: {cookie_value}</li>')
+    </pyhp>
+</ul>

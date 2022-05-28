@@ -1,0 +1,5 @@
+<pyhp>
+if 'key' in pyhp.post and 'value' in pyhp.post:
+    pyhp.set_cookie(pyhp.post['key'], pyhp.post['value'])
+    print(f'Successfully set cookie "{pyhp.post["key"]}" to "{pyhp.post["value"]}"')
+</pyhp>

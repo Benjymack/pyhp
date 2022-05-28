@@ -41,4 +41,5 @@ def remove_whitespace_from_lines(lines: list[str],
 def can_remove_whitespace_from_line(line: str,
                                     whitespace_characters: int) -> bool:
     return (line[:whitespace_characters].isspace() or
-            whitespace_characters == 0)
+            whitespace_characters == 0 or
+            line == '')
