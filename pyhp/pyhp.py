@@ -1,3 +1,7 @@
+"""
+PyHP: Python Hypertext Preprocessor
+"""
+
 from typing import Optional
 from argparse import ArgumentParser
 
@@ -42,42 +46,54 @@ class Pyhp(PyhpProtocol):
 
         self._redirect_info: Optional[(str, int)] = None
 
-    def include(self, relative_path: str):
+    def include(self, relative_path: str) -> str:
+        """
+        Include another pyhp file into the current one,
+        and return the output HTML
+        """
         absolute_path = get_absolute_path(relative_path, self._current_dir)
 
         pyhp_class = Pyhp(get_directory(absolute_path), self._debug,
                           self._cookies, self._get, self._post)
 
-        output = run_parsed_code(load_file(absolute_path), pyhp_class)
+        return run_parsed_code(load_file(absolute_path), pyhp_class)
 
-        print(output, end='')
+    def display(self, relative_path: str):
+        """Include another pyhp file and print it."""
+        print(self.include(relative_path), end='')
 
     def redirect(self, url: str, status_code: int = 302):
+        """Redirect to another url."""
         self._redirect_info = (url, status_code)
 
     def get_redirect_information(self) -> Optional[tuple[str, int]]:
+        """Return the redirect information if present."""
         return self._redirect_info
 
     def set_cookie(self, key: str, **kwargs):
+        """Set a cookie."""
         self._new_cookies[key] = NewCookie(key, **kwargs)
 
     def delete_cookie(self, key: str, **kwargs):
+        """Delete a cookie."""
         self._to_delete_cookies[key] = DeleteCookie(key, **kwargs)
 
     def get_new_cookies(self):
+        """Return the cookies that will be set."""
         return self._new_cookies
 
     def get_delete_cookies(self):
+        """Return the cookies that will be deleted."""
         return self._to_delete_cookies
 
     @staticmethod
     def escape(text: str) -> str:
-        """Escapes text for use in HTML."""
+        """Escape text for use in HTML."""
         return str(markupsafe.escape(text))
 
     @property
     def current_dir(self) -> str:
-        """Returns the directory of the currently executing file."""
+        """Return the directory of the currently executing file."""
         return self._current_dir
 
     @property
@@ -87,17 +103,17 @@ class Pyhp(PyhpProtocol):
 
     @property
     def cookies(self) -> dict[str, str]:
-        """Returns a dictionary of cookies."""
+        """Return the cookies."""
         return self._cookies
 
     @property
     def get(self) -> dict[str, str]:
-        """Returns a dictionary of GET parameters."""
+        """Return the GET parameters."""
         return self._get
 
     @property
     def post(self) -> dict[str, str]:
-        """Returns a dictionary of the POST data."""
+        """Return the POST data."""
         return self._post
 
 
