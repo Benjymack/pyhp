@@ -1,3 +1,5 @@
+# pylint: disable=missing-function-docstring
+
 import os
 
 from bs4 import BeautifulSoup

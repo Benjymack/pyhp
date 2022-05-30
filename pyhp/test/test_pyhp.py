@@ -1,3 +1,5 @@
+# pylint: disable=missing-function-docstring
+
 from unittest import TestCase
 
 from pyhp.text_processing import remove_initial_indentation, prepare_code_text

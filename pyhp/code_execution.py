@@ -1,3 +1,5 @@
+#pylint: disable=missing-function-docstring
+
 from io import StringIO
 from contextlib import redirect_stdout
 from copy import deepcopy

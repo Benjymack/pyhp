@@ -1,3 +1,5 @@
+# pylint: disable=missing-function-docstring
+
 from bs4 import Tag
 
 
