@@ -1,4 +1,3 @@
-# Imports
 from typing import Optional
 from argparse import ArgumentParser
 
@@ -20,7 +19,7 @@ __all__ = ['load_file', 'run_parsed_code', 'get_absolute_path', 'Pyhp',
 
 class PyhpProtocol:
     @property
-    def debug(self):
+    def debug(self) -> bool:
         raise NotImplementedError
 
 
@@ -34,9 +33,9 @@ class Pyhp(PyhpProtocol):
         self._current_dir = current_dir
         self._debug = debug
 
-        self._cookies = cookies or {}
-        self._get = get or {}
-        self._post = post or {}
+        self._cookies: dict[str, str] = cookies or {}
+        self._get: dict[str, str] = get or {}
+        self._post: dict[str, str] = post or {}
 
         self._new_cookies: dict[str, NewCookie] = {}
         self._to_delete_cookies: dict[str, DeleteCookie] = {}
@@ -72,27 +71,33 @@ class Pyhp(PyhpProtocol):
         return self._to_delete_cookies
 
     @staticmethod
-    def escape(text: str):
-        return markupsafe.escape(text)
+    def escape(text: str) -> str:
+        """Escapes text for use in HTML."""
+        return str(markupsafe.escape(text))
 
     @property
-    def current_dir(self):
+    def current_dir(self) -> str:
+        """Returns the directory of the currently executing file."""
         return self._current_dir
 
     @property
-    def debug(self):
+    def debug(self) -> bool:
+        """Return whether the app is in debug mode."""
         return self._debug
 
     @property
-    def cookies(self):
+    def cookies(self) -> dict[str, str]:
+        """Returns a dictionary of cookies."""
         return self._cookies
 
     @property
-    def get(self):
+    def get(self) -> dict[str, str]:
+        """Returns a dictionary of GET parameters."""
         return self._get
 
     @property
-    def post(self):
+    def post(self) -> dict[str, str]:
+        """Returns a dictionary of the POST data."""
         return self._post
 
 

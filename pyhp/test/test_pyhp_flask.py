@@ -1,3 +1,5 @@
+# pylint: disable=missing-function-docstring
+
 from unittest import TestCase
 
 

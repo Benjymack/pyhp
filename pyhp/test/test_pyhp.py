@@ -1,3 +1,19 @@
+"""
+Tests PyHP separate from any server.
+
+TestPyhpRemoveInitialIndentation:
+    Tests that the initial indentation is correctly removed.
+TestPyhpPrepareCodeText:
+    Tests that the code text is correctly prepared
+    (excess newlines removed, etc)
+TestPyhpPrepareGlobalsLocals:
+    Tests that the globals and locals contain the required information.
+TestPyhpRunParsedCode:
+    Tests that the code is correctly run, including cookies, GET, POST, etc.
+TestPyhpFileProcessing:
+    Tests that PyHP can load and execute files.
+"""
+
 # pylint: disable=missing-function-docstring
 
 from unittest import TestCase
@@ -6,11 +22,8 @@ from pyhp.text_processing import remove_initial_indentation, prepare_code_text
 from pyhp.file_processing import parse_html
 from pyhp.code_execution import prepare_globals_locals, run_parsed_code
 from pyhp.cookies import NewCookie
-from pyhp.pyhp import PyhpProtocol
 
-
-class TestPyhpRunCodeText(TestCase):
-    pass
+from pyhp.test.mocks import MockPyhp
 
 
 class TestPyhpRemoveInitialIndentation(TestCase):
@@ -34,7 +47,9 @@ else:
             (' x = 1', 'x = 1'),
             ('    print(1)', 'print(1)'),
             ('\tprint(2)', 'print(2)'),
-        )  # TODO: More cases
+            ('\t  print(3)', 'print(3)'),
+            ('\t    if True:\n\t        print(1)', 'if True:\n    print(1)'),
+        )
 
         for indented, unindented in cases:
             self.assertEqual(remove_initial_indentation(indented), unindented)
@@ -44,7 +59,7 @@ else:
             '    print(1)\nprint(2)',
             '  x=1\n x=2',
             '\t\tprint(2)\n\t\tprint(3)\n\tprint(5)',
-        ]  # TODO: More cases
+        ]
         no_error_cases = [
             '    if True:\n        print(1)\n\n        print(2)',
             ' print(1)\n\n\n print(2)',
@@ -150,12 +165,3 @@ class TestPyhpRunParsedCode(TestCase):
 
 class TestPyhpFileProcessing(TestCase):
     pass
-
-
-class MockPyhp(PyhpProtocol):
-    def __init__(self, debug: bool = False):
-        self._debug = debug
-
-    @property
-    def debug(self):
-        return self._debug
