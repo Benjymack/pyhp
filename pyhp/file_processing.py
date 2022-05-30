@@ -20,6 +20,8 @@ def parse_html(html: str) -> BeautifulSoup:
 def get_pyhp_file_path(absolute_path: str) -> str:
     if os.path.exists(absolute_path):
         return absolute_path
+    elif os.path.isdir(absolute_path):
+        return os.path.join(absolute_path, f'index.{PYHP_FILE_EXTENSION}')
     else:
         possible_path = f'{absolute_path}.{PYHP_FILE_EXTENSION}'
         if os.path.exists(possible_path):

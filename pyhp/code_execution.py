@@ -49,8 +49,8 @@ def run_code_block(code_block: Tag, globals_: dict[str, Any],
 
 
 def run_code_text(code_text: str,
-                  globals_: dict,
-                  locals_: dict) -> (bool, str):
+                  globals_: dict[str, Any],
+                  locals_: dict[str, Any]) -> (bool, str):
     output_text = StringIO()
 
     try:
