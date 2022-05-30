@@ -1,10 +1,11 @@
-from bs4 import BeautifulSoup, Tag
-from bs4.element import ResultSet
 from io import StringIO
 from contextlib import redirect_stdout
 from copy import deepcopy
 from traceback import format_exc
 from typing import TYPE_CHECKING, Any
+
+from bs4 import BeautifulSoup, Tag
+from bs4.element import ResultSet
 
 try:
     from pyhp.text_processing import prepare_code_block
@@ -55,8 +56,8 @@ def run_code_text(code_text: str,
 
     try:
         with redirect_stdout(output_text):
-            exec(code_text, globals_, locals_)
-    except Exception:
+            exec(code_text, globals_, locals_)  # pylint: disable=exec-used
+    except Exception:  # pylint: disable=broad-except
         success = False
         output = f'<pre>{format_exc()}</pre>'
     else:
