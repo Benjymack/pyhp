@@ -1,3 +1,12 @@
+"""
+PyHP: Python Hypertext Preprocessor
+
+This is a Flask app that can be used to run PyHP files.
+
+Run the examples with `set FLASK_APP=pyhp_flask:create_app('./examples')` and
+`flask run`.
+"""
+
 import os
 
 from typing import Optional
@@ -5,15 +14,16 @@ from flask import Flask, request, make_response, Response, redirect
 
 try:
     from pyhp import load_file, run_parsed_code, PyhpProtocol, Pyhp
-    from file_processing import get_directory, get_absolute_path
+    from file_processing import get_absolute_path
     from cookies import NewCookie, DeleteCookie
 except ImportError:
     from .pyhp import load_file, run_parsed_code, PyhpProtocol, Pyhp
-    from .file_processing import get_directory, get_absolute_path
+    from .file_processing import get_absolute_path
     from .cookies import NewCookie, DeleteCookie
 
 
 def create_app(base_dir: str) -> Flask:
+    """Create a PyHP Flask app and return it."""
     base_dir = os.path.abspath(base_dir)  # TODO: Move into separate function
 
     app = Flask(__name__)
@@ -42,6 +52,7 @@ def create_app(base_dir: str) -> Flask:
 
 def get_page_or_404(absolute_path: str, pyhp_class: PyhpProtocol,
                     debug: bool) -> (str, int):
+    """Return the executed page or return a 404 page."""
     try:
         dom = load_file(absolute_path)
         return run_parsed_code(dom, pyhp_class), 200
@@ -49,8 +60,7 @@ def get_page_or_404(absolute_path: str, pyhp_class: PyhpProtocol,
         print(os.getcwd())
         if debug:
             return f'File not found: {absolute_path}', 404
-        else:
-            return '', 404
+        return '', 404
 
 
 def redirect_or_create_response(page_text: str, status_code: int,
@@ -58,6 +68,7 @@ def redirect_or_create_response(page_text: str, status_code: int,
                                 delete_cookies: dict[str, DeleteCookie],
                                 redirect_information: Optional[
                                     tuple[str, int]]) -> Response:
+    """Return a redirect response or create a new response."""
     if redirect_information is not None:
         url, status_code = redirect_information
         return redirect(url, status_code)
@@ -68,12 +79,13 @@ def redirect_or_create_response(page_text: str, status_code: int,
 def create_response(page_text: str, status_code: int,
                     new_cookies: dict[str, NewCookie],
                     delete_cookies: dict[str, DeleteCookie]) -> Response:
+    """Create a new response."""
     response = make_response(page_text, status_code)
 
-    for cookie_key, cookie in new_cookies.items():
+    for cookie in new_cookies.values():
         response.set_cookie(**cookie.__dict__)
 
-    for cookie_key, cookie in delete_cookies.items():
+    for cookie in delete_cookies.values():
         response.delete_cookie(**cookie.__dict__)
 
     return response

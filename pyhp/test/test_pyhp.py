@@ -1,17 +1,33 @@
+"""
+Tests PyHP separate from any server.
+
+TestPyhpRemoveInitialIndentation:
+    Tests that the initial indentation is correctly removed.
+TestPyhpPrepareCodeText:
+    Tests that the code text is correctly prepared
+    (excess newlines removed, etc)
+TestPyhpPrepareGlobalsLocals:
+    Tests that the globals and locals contain the required information.
+TestPyhpRunParsedCode:
+    Tests that the code is correctly run, including cookies, GET, POST.
+TestPyhpFileProcessing:
+    Tests that PyHP can load and execute files.
+"""
+
+# pylint: disable=missing-function-docstring
+
 from unittest import TestCase
+from datetime import datetime
 
 from pyhp.text_processing import remove_initial_indentation, prepare_code_text
 from pyhp.file_processing import parse_html
 from pyhp.code_execution import prepare_globals_locals, run_parsed_code
 from pyhp.cookies import NewCookie
-from pyhp.pyhp import PyhpProtocol
-
-
-class TestPyhpRunCodeText(TestCase):
-    pass
+from pyhp.pyhp import Pyhp
 
 
 class TestPyhpRemoveInitialIndentation(TestCase):
+    """Tests that the initial indentation is correctly removed."""
     def test_no_indentation(self):
         cases = (
             '',
@@ -32,7 +48,9 @@ else:
             (' x = 1', 'x = 1'),
             ('    print(1)', 'print(1)'),
             ('\tprint(2)', 'print(2)'),
-        )  # TODO: More cases
+            ('\t  print(3)', 'print(3)'),
+            ('\t    if True:\n\t        print(1)', 'if True:\n    print(1)'),
+        )
 
         for indented, unindented in cases:
             self.assertEqual(remove_initial_indentation(indented), unindented)
@@ -42,7 +60,7 @@ else:
             '    print(1)\nprint(2)',
             '  x=1\n x=2',
             '\t\tprint(2)\n\t\tprint(3)\n\tprint(5)',
-        ]  # TODO: More cases
+        ]
         no_error_cases = [
             '    if True:\n        print(1)\n\n        print(2)',
             ' print(1)\n\n\n print(2)',
@@ -58,6 +76,10 @@ else:
 
 
 class TestPyhpPrepareCodeText(TestCase):
+    """
+    Tests that the code text is correctly prepared
+    (excess newlines removed, etc)
+    """
     def test_extra_newlines(self):
         cases = [
             ('x = 1\n\n', 'x = 1'),
@@ -73,14 +95,16 @@ class TestPyhpPrepareCodeText(TestCase):
 
 
 class TestPyhpPrepareGlobalsLocals(TestCase):
+    """Tests that the globals and locals contain the required information."""
     def test_typical_globals(self):
-        pyhp_class = MockPyhp()
+        pyhp_class = Pyhp('.')
         self.assertEqual(prepare_globals_locals(pyhp_class),
                          ({'pyhp': pyhp_class}, {}))
         self.assertIs(prepare_globals_locals(pyhp_class)[0]['pyhp'], pyhp_class)
 
 
 class TestPyhpRunParsedCode(TestCase):
+    """Tests that the code is correctly run, including cookies, GET, POST."""
     def test_normal_html(self):
         cases = [
             '<p>Hello</p>',
@@ -89,8 +113,8 @@ class TestPyhpRunParsedCode(TestCase):
         ]
 
         for case in cases:
-            mock_pyhp = MockPyhp()
-            self.assertEqual(run_parsed_code(parse_html(case), mock_pyhp), case)
+            pyhp_class = Pyhp('.')
+            self.assertEqual(run_parsed_code(parse_html(case), pyhp_class), case)
 
     def test_blank_pyhp_tags(self):
         cases = [
@@ -102,8 +126,8 @@ class TestPyhpRunParsedCode(TestCase):
         ]
 
         for case in cases:
-            mock_pyhp = MockPyhp()
-            self.assertEqual(run_parsed_code(parse_html(case), mock_pyhp), '')
+            pyhp_class = Pyhp('.')
+            self.assertEqual(run_parsed_code(parse_html(case), pyhp_class), '')
 
     def test_print_statement(self):
         cases = [
@@ -113,8 +137,8 @@ class TestPyhpRunParsedCode(TestCase):
         ]
 
         for input_code, expected in cases:
-            mock_pyhp = MockPyhp()
-            self.assertEqual(run_parsed_code(parse_html(input_code), mock_pyhp),
+            pyhp_class = Pyhp('.')
+            self.assertEqual(run_parsed_code(parse_html(input_code), pyhp_class),
                              expected)
 
     def test_get_cookies(self):
@@ -122,19 +146,46 @@ class TestPyhpRunParsedCode(TestCase):
 
     def test_set_cookies(self):
         cases = [
-            ("<pyhp>pyhp.set_cookie('foo', 'bar')</pyhp>",
+            ("<pyhp>pyhp.set_cookie('foo', value='bar')</pyhp>",
              {'foo': NewCookie('foo', 'bar')}),
+            ("<pyhp>pyhp.set_cookie('foo', value='bar', max_age=10)</pyhp>",
+             {'foo': NewCookie('foo', 'bar', max_age=10)}),
+            ("<pyhp>from datetime import datetime, timedelta\n"
+             "pyhp.set_cookie('foo', value='bar', "
+             "max_age=10, expires=datetime(2030, 1, 1))</pyhp>",
+             {'foo': NewCookie('foo', 'bar', max_age=10,
+                               expires=datetime(2030, 1, 1))}),
         ]
 
         for case in cases:
             dom = parse_html(case[0])
-            # TODO: Finish
+            pyhp_class = Pyhp('.')
+            run_parsed_code(dom, pyhp_class)
+            self.assertEqual(pyhp_class.get_new_cookies(), case[1])
 
     def test_get_parameters(self):
-        pass  # TODO: Finish
+        cases = [
+            ("<pyhp>print(pyhp.get['foo'])</pyhp>", {'foo': 'bar'}, 'bar\n'),
+            ("<pyhp>print(pyhp.get['foo'] + ' ' + pyhp.get['baz'])</pyhp>",
+             {'foo': 'bar', 'baz': 'qux'}, 'bar qux\n'),
+        ]
+
+        for case in cases:
+            dom = parse_html(case[0])
+            pyhp_class = Pyhp('.', get=case[1])
+            self.assertEqual(run_parsed_code(dom, pyhp_class), case[2])
 
     def test_post_parameters(self):
-        pass  # TODO: Finish
+        cases = [
+            ("<pyhp>print(pyhp.post['foo'])</pyhp>", {'foo': 'bar'}, 'bar\n'),
+            ("<pyhp>print(pyhp.post['foo'] + ' ' + pyhp.post['baz'])</pyhp>",
+             {'foo': 'bar', 'baz': 'qux'}, 'bar qux\n'),
+        ]
+
+        for case in cases:
+            dom = parse_html(case[0])
+            pyhp_class = Pyhp('.', post=case[1])
+            self.assertEqual(run_parsed_code(dom, pyhp_class), case[2])
 
     def test_include(self):
         pass  # TODO: Finish
@@ -147,13 +198,4 @@ class TestPyhpRunParsedCode(TestCase):
 
 
 class TestPyhpFileProcessing(TestCase):
-    pass
-
-
-class MockPyhp(PyhpProtocol):
-    def __init__(self, debug: bool = False):
-        self._debug = debug
-
-    @property
-    def debug(self):
-        return self._debug
+    """Tests that PyHP can load and execute files."""
