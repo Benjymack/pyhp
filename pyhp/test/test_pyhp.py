@@ -17,13 +17,13 @@ TestPyhpFileProcessing:
 # pylint: disable=missing-function-docstring
 
 from unittest import TestCase
+from datetime import datetime
 
 from pyhp.text_processing import remove_initial_indentation, prepare_code_text
 from pyhp.file_processing import parse_html
 from pyhp.code_execution import prepare_globals_locals, run_parsed_code
 from pyhp.cookies import NewCookie
-
-from pyhp.test.mocks import MockPyhp
+from pyhp.pyhp import Pyhp
 
 
 class TestPyhpRemoveInitialIndentation(TestCase):
@@ -91,7 +91,7 @@ class TestPyhpPrepareCodeText(TestCase):
 
 class TestPyhpPrepareGlobalsLocals(TestCase):
     def test_typical_globals(self):
-        pyhp_class = MockPyhp()
+        pyhp_class = Pyhp('.')
         self.assertEqual(prepare_globals_locals(pyhp_class),
                          ({'pyhp': pyhp_class}, {}))
         self.assertIs(prepare_globals_locals(pyhp_class)[0]['pyhp'], pyhp_class)
@@ -106,8 +106,8 @@ class TestPyhpRunParsedCode(TestCase):
         ]
 
         for case in cases:
-            mock_pyhp = MockPyhp()
-            self.assertEqual(run_parsed_code(parse_html(case), mock_pyhp), case)
+            pyhp_class = Pyhp('.')
+            self.assertEqual(run_parsed_code(parse_html(case), pyhp_class), case)
 
     def test_blank_pyhp_tags(self):
         cases = [
@@ -119,8 +119,8 @@ class TestPyhpRunParsedCode(TestCase):
         ]
 
         for case in cases:
-            mock_pyhp = MockPyhp()
-            self.assertEqual(run_parsed_code(parse_html(case), mock_pyhp), '')
+            pyhp_class = Pyhp('.')
+            self.assertEqual(run_parsed_code(parse_html(case), pyhp_class), '')
 
     def test_print_statement(self):
         cases = [
@@ -130,8 +130,8 @@ class TestPyhpRunParsedCode(TestCase):
         ]
 
         for input_code, expected in cases:
-            mock_pyhp = MockPyhp()
-            self.assertEqual(run_parsed_code(parse_html(input_code), mock_pyhp),
+            pyhp_class = Pyhp('.')
+            self.assertEqual(run_parsed_code(parse_html(input_code), pyhp_class),
                              expected)
 
     def test_get_cookies(self):
@@ -139,16 +139,34 @@ class TestPyhpRunParsedCode(TestCase):
 
     def test_set_cookies(self):
         cases = [
-            ("<pyhp>pyhp.set_cookie('foo', 'bar')</pyhp>",
+            ("<pyhp>pyhp.set_cookie('foo', value='bar')</pyhp>",
              {'foo': NewCookie('foo', 'bar')}),
+            ("<pyhp>pyhp.set_cookie('foo', value='bar', max_age=10)</pyhp>",
+             {'foo': NewCookie('foo', 'bar', max_age=10)}),
+            ("<pyhp>from datetime import datetime, timedelta\n"
+             "pyhp.set_cookie('foo', value='bar', "
+             "max_age=10, expires=datetime(2030, 1, 1))</pyhp>",
+             {'foo': NewCookie('foo', 'bar', max_age=10,
+                               expires=datetime(2030, 1, 1))}),
         ]
 
         for case in cases:
             dom = parse_html(case[0])
-            # TODO: Finish
+            pyhp_class = Pyhp('.')
+            run_parsed_code(dom, pyhp_class)
+            self.assertEqual(pyhp_class.get_new_cookies(), case[1])
 
     def test_get_parameters(self):
-        pass  # TODO: Finish
+        cases = [
+            ("<pyhp>print(pyhp.get['foo'])</pyhp>", {'foo': 'bar'}, 'bar\n'),
+            ("<pyhp>print(pyhp.get['foo'] + ' ' + pyhp.get['baz'])</pyhp>",
+             {'foo': 'bar', 'baz': 'qux'}, 'bar qux\n'),
+        ]
+
+        for case in cases:
+            dom = parse_html(case[0])
+            pyhp_class = Pyhp('.', get=case[1])
+            self.assertEqual(run_parsed_code(dom, pyhp_class), case[2])
 
     def test_post_parameters(self):
         pass  # TODO: Finish

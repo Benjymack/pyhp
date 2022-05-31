@@ -1,4 +1,4 @@
-#pylint: disable=missing-function-docstring
+# pylint: disable=missing-function-docstring
 
 from io import StringIO
 from contextlib import redirect_stdout
@@ -14,15 +14,14 @@ try:
 except ImportError:
     from text_processing import prepare_code_block
 
-
 if TYPE_CHECKING:
-    from .pyhp import PyhpProtocol
+    from .pyhp import Pyhp
 
 PYHP_TAG = 'pyhp'
 
 
 def run_parsed_code(dom: BeautifulSoup,
-                    pyhp_class: 'PyhpProtocol') -> str:
+                    pyhp_class: 'Pyhp') -> str:
     output_dom = deepcopy(dom)
     code_blocks = get_code_blocks(output_dom)
 
@@ -38,7 +37,7 @@ def run_parsed_code(dom: BeautifulSoup,
 
 
 def run_code_block(code_block: Tag, globals_: dict[str, Any],
-                   locals_: dict[str, Any], pyhp_class: 'PyhpProtocol') -> bool:
+                   locals_: dict[str, Any], pyhp_class: 'Pyhp') -> bool:
     code_text = prepare_code_block(code_block)
 
     success, output = run_code_text(code_text, globals_, locals_)
@@ -73,8 +72,8 @@ def get_code_blocks(dom: BeautifulSoup) -> ResultSet[Tag]:
     return dom.select(f'{PYHP_TAG}:not({PYHP_TAG} *)')
 
 
-def prepare_globals_locals(pyhp_class: 'PyhpProtocol') -> (dict[str, Any],
-                                                           dict[str, Any]):
+def prepare_globals_locals(pyhp_class: 'Pyhp') -> (dict[str, Any],
+                                                   dict[str, Any]):
     globals_ = {'pyhp': pyhp_class}
     locals_ = {}
 

@@ -17,19 +17,16 @@ except ImportError:
     from cookies import NewCookie, DeleteCookie
 
 
-__all__ = ['load_file', 'run_parsed_code', 'get_absolute_path', 'Pyhp',
-           'PyhpProtocol']
+__all__ = ['load_file', 'run_parsed_code', 'get_absolute_path', 'Pyhp']
 
 
-class PyhpProtocol:
-    @property
-    def debug(self) -> bool:
-        raise NotImplementedError
-
-
-class Pyhp(PyhpProtocol):
+class Pyhp:
+    """
+    The interface for the PyHP file to interact with the server,
+    and the web page.
+    """
     def __init__(self, current_dir: str,
-                 debug: bool,
+                 debug: bool = False,
                  cookies: Optional[dict[str, str]] = None,
                  get: Optional[dict[str, str]] = None,
                  post: Optional[dict[str, str]] = None):
