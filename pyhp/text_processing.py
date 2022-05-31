@@ -1,3 +1,7 @@
+"""
+Sets up functions for processing PyHP code blocks and code text.
+"""
+
 # pylint: disable=missing-function-docstring
 
 from bs4 import Tag

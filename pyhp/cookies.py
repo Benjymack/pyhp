@@ -3,6 +3,8 @@ Sets up classes for storing information about cookies that will be created and
 destroyed.
 """
 
+# pylint: disable=too-many-instance-attributes
+
 from typing import Optional, Union
 from dataclasses import dataclass
 from datetime import datetime, timedelta

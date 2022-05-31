@@ -25,6 +25,9 @@ class Pyhp:
     The interface for the PyHP file to interact with the server,
     and the web page.
     """
+
+    # pylint: disable=too-many-instance-attributes, too-many-arguments
+
     def __init__(self, current_dir: str,
                  debug: bool = False,
                  cookies: Optional[dict[str, str]] = None,
@@ -50,10 +53,10 @@ class Pyhp:
         """
         absolute_path = get_absolute_path(relative_path, self._current_dir)
 
-        pyhp_class = Pyhp(get_directory(absolute_path), self._debug,
-                          self._cookies, self._get, self._post)
+        new_pyhp_class = Pyhp(get_directory(absolute_path), self._debug,
+                              self._cookies, self._get, self._post)
 
-        return run_parsed_code(load_file(absolute_path), pyhp_class)
+        return run_parsed_code(load_file(absolute_path), new_pyhp_class)
 
     def display(self, relative_path: str):
         """Include another pyhp file and print it."""
