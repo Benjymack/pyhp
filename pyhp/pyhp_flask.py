@@ -1,3 +1,12 @@
+"""
+PyHP: Python Hypertext Preprocessor
+
+This is a Flask app that can be used to run PyHP files.
+
+Run the examples with `set FLASK_APP=pyhp_flask:create_app('./examples')` and
+`flask run`.
+"""
+
 import os
 
 from typing import Optional
@@ -5,11 +14,11 @@ from flask import Flask, request, make_response, Response, redirect
 
 try:
     from pyhp import load_file, run_parsed_code, PyhpProtocol, Pyhp
-    from file_processing import get_directory, get_absolute_path
+    from file_processing import get_absolute_path
     from cookies import NewCookie, DeleteCookie
 except ImportError:
     from .pyhp import load_file, run_parsed_code, PyhpProtocol, Pyhp
-    from .file_processing import get_directory, get_absolute_path
+    from .file_processing import get_absolute_path
     from .cookies import NewCookie, DeleteCookie
 
 
@@ -49,8 +58,7 @@ def get_page_or_404(absolute_path: str, pyhp_class: PyhpProtocol,
         print(os.getcwd())
         if debug:
             return f'File not found: {absolute_path}', 404
-        else:
-            return '', 404
+        return '', 404
 
 
 def redirect_or_create_response(page_text: str, status_code: int,
@@ -70,10 +78,10 @@ def create_response(page_text: str, status_code: int,
                     delete_cookies: dict[str, DeleteCookie]) -> Response:
     response = make_response(page_text, status_code)
 
-    for cookie_key, cookie in new_cookies.items():
+    for cookie in new_cookies.values():
         response.set_cookie(**cookie.__dict__)
 
-    for cookie_key, cookie in delete_cookies.items():
+    for cookie in delete_cookies.values():
         response.delete_cookie(**cookie.__dict__)
 
     return response

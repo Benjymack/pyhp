@@ -9,7 +9,7 @@ TestPyhpPrepareCodeText:
 TestPyhpPrepareGlobalsLocals:
     Tests that the globals and locals contain the required information.
 TestPyhpRunParsedCode:
-    Tests that the code is correctly run, including cookies, GET, POST, etc.
+    Tests that the code is correctly run, including cookies, GET, POST.
 TestPyhpFileProcessing:
     Tests that PyHP can load and execute files.
 """
@@ -27,6 +27,7 @@ from pyhp.pyhp import Pyhp
 
 
 class TestPyhpRemoveInitialIndentation(TestCase):
+    """Tests that the initial indentation is correctly removed."""
     def test_no_indentation(self):
         cases = (
             '',
@@ -75,6 +76,10 @@ else:
 
 
 class TestPyhpPrepareCodeText(TestCase):
+    """
+    Tests that the code text is correctly prepared
+    (excess newlines removed, etc)
+    """
     def test_extra_newlines(self):
         cases = [
             ('x = 1\n\n', 'x = 1'),
@@ -90,6 +95,7 @@ class TestPyhpPrepareCodeText(TestCase):
 
 
 class TestPyhpPrepareGlobalsLocals(TestCase):
+    """Tests that the globals and locals contain the required information."""
     def test_typical_globals(self):
         pyhp_class = Pyhp('.')
         self.assertEqual(prepare_globals_locals(pyhp_class),
@@ -98,6 +104,7 @@ class TestPyhpPrepareGlobalsLocals(TestCase):
 
 
 class TestPyhpRunParsedCode(TestCase):
+    """Tests that the code is correctly run, including cookies, GET, POST."""
     def test_normal_html(self):
         cases = [
             '<p>Hello</p>',
@@ -169,7 +176,16 @@ class TestPyhpRunParsedCode(TestCase):
             self.assertEqual(run_parsed_code(dom, pyhp_class), case[2])
 
     def test_post_parameters(self):
-        pass  # TODO: Finish
+        cases = [
+            ("<pyhp>print(pyhp.post['foo'])</pyhp>", {'foo': 'bar'}, 'bar\n'),
+            ("<pyhp>print(pyhp.post['foo'] + ' ' + pyhp.post['baz'])</pyhp>",
+             {'foo': 'bar', 'baz': 'qux'}, 'bar qux\n'),
+        ]
+
+        for case in cases:
+            dom = parse_html(case[0])
+            pyhp_class = Pyhp('.', post=case[1])
+            self.assertEqual(run_parsed_code(dom, pyhp_class), case[2])
 
     def test_include(self):
         pass  # TODO: Finish
@@ -182,4 +198,4 @@ class TestPyhpRunParsedCode(TestCase):
 
 
 class TestPyhpFileProcessing(TestCase):
-    pass
+    """Tests that PyHP can load and execute files."""

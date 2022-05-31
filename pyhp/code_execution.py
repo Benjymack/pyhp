@@ -1,3 +1,7 @@
+"""
+Sets up functions for executing PyHP code blocks and code text.
+"""
+
 # pylint: disable=missing-function-docstring
 
 from io import StringIO

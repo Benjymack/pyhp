@@ -1,3 +1,8 @@
+"""
+Sets up classes for storing information about cookies that will be created and
+destroyed.
+"""
+
 from typing import Optional, Union
 from dataclasses import dataclass
 from datetime import datetime, timedelta
@@ -5,6 +10,7 @@ from datetime import datetime, timedelta
 
 @dataclass
 class NewCookie:
+    """Stores information about a cookie that will be created."""
     key: str
     value: str = ''
     max_age: Optional[Union[timedelta, int]] = None
@@ -18,6 +24,7 @@ class NewCookie:
 
 @dataclass
 class DeleteCookie:
+    """Stores information about a cookie that will be destroyed."""
     key: str
     path: str = '/'
     domain: Optional[str] = None

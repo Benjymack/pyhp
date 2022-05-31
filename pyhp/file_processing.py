@@ -1,3 +1,7 @@
+"""
+Sets up functions for loading and parsing PyHP files.
+"""
+
 # pylint: disable=missing-function-docstring
 
 import os
