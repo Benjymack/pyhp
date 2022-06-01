@@ -13,11 +13,11 @@ from typing import Optional
 from flask import Flask, request, make_response, Response, redirect
 
 try:
-    from pyhp import load_file, run_parsed_code, PyhpProtocol, Pyhp
+    from pyhp import load_file, run_parsed_code, Pyhp
     from file_processing import get_absolute_path
     from cookies import NewCookie, DeleteCookie
 except ImportError:
-    from .pyhp import load_file, run_parsed_code, PyhpProtocol, Pyhp
+    from .pyhp import load_file, run_parsed_code, Pyhp
     from .file_processing import get_absolute_path
     from .cookies import NewCookie, DeleteCookie
 
@@ -50,7 +50,7 @@ def create_app(base_dir: str) -> Flask:
     return app
 
 
-def get_page_or_404(absolute_path: str, pyhp_class: PyhpProtocol,
+def get_page_or_404(absolute_path: str, pyhp_class: Pyhp,
                     debug: bool) -> (str, int):
     """Return the executed page or return a 404 page."""
     try:
