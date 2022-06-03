@@ -11,17 +11,16 @@ from traceback import format_exc
 from typing import TYPE_CHECKING, Any
 
 from bs4 import BeautifulSoup, Tag
-from bs4.element import ResultSet
 
 try:
     from pyhp.text_processing import prepare_code_block
+    from pyhp.hypertext_processing import get_code_blocks
 except ImportError:
     from text_processing import prepare_code_block
+    from hypertext_processing import get_code_blocks
 
 if TYPE_CHECKING:
     from .pyhp import Pyhp
-
-PYHP_TAG = 'pyhp'
 
 
 def run_parsed_code(dom: BeautifulSoup,
@@ -70,10 +69,6 @@ def run_code_text(code_text: str,
         output = output_text.getvalue()
 
     return success, output
-
-
-def get_code_blocks(dom: BeautifulSoup) -> ResultSet[Tag]:
-    return dom.select(f'{PYHP_TAG}:not({PYHP_TAG} *)')
 
 
 def prepare_globals_locals(pyhp_class: 'Pyhp') -> (dict[str, Any],
