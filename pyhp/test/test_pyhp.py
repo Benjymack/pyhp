@@ -190,11 +190,24 @@ class TestPyhpRunParsedCode(TestCase):
     def test_include(self):
         pass  # TODO: Finish
 
-    def test_run_error_code_with_debug(self):
-        pass  # TODO: Finish
+    def test_run_error_code(self):
+        cases = [
+            ('<pyhp>x = </pyhp>', 'SyntaxError: invalid syntax'),
+            ('<pyhp>raise Exception()</pyhp>', 'Exception'),
+            ('<pyhp>print(x)</pyhp>', "NameError: name 'x' is not defined"),
+        ]
 
-    def test_run_error_code_without_debug(self):
-        pass  # TODO: Finish
+        for case in cases:
+            # Run with debug
+            dom = parse_html(case[0])
+            pyhp_class = Pyhp('.', debug=True)
+            self.assertIn(case[1], run_parsed_code(dom, pyhp_class))
+
+            # Run without debug
+            dom = parse_html(case[0])
+            pyhp_class = Pyhp('.', debug=False)
+            with self.assertRaises(RuntimeError):
+                run_parsed_code(dom, pyhp_class)
 
 
 class TestPyhpFileProcessing(TestCase):
