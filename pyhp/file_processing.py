@@ -4,42 +4,61 @@ Sets up functions for loading and parsing PyHP files.
 
 # pylint: disable=missing-function-docstring
 
-import os
-
-from bs4 import BeautifulSoup
+from pathlib import PurePath, Path
 
 
 PYHP_FILE_EXTENSION = 'pyhp'
 
 
-def load_file(absolute_path: str) -> BeautifulSoup:
-    file_path = get_pyhp_file_path(absolute_path)
+class FileProcessor:
+    def get_file_contents(self, path: PurePath) -> str:
+        raise NotImplementedError
 
-    with open(file_path, 'r', encoding='utf-8') as file:
-        return parse_html(file.read())
+    def is_dir(self, path: PurePath) -> bool:
+        raise NotImplementedError
+
+    def is_file(self, path: PurePath) -> bool:
+        raise NotImplementedError
+
+    def is_pyhp_file(self, path: PurePath) -> bool:
+        raise NotImplementedError
+
+    def get_true_path(self, path: PurePath) -> PurePath:
+        if self.is_dir(path):
+            raise IsADirectoryError
+
+        if self.is_file(path):
+            return path
+
+        path = path.with_suffix(f'{path.suffix}.{PYHP_FILE_EXTENSION}')
+
+        if self.is_file(path):
+            return path
+
+        raise FileNotFoundError('Unable to find file.')
 
 
-def parse_html(html: str) -> BeautifulSoup:
-    return BeautifulSoup(html, 'html.parser')
+class SystemFileProcessor(FileProcessor):
+    def __init__(self, base_dir: Path):
+        if not base_dir.is_dir():
+            raise FileNotFoundError('The base directory does not exist.')
+        self._base_dir = base_dir
 
+    def get_file_contents(self, path: PurePath) -> str:
+        with open(self.get_absolute_path(path), 'r', encoding='utf-8') as file:
+            return file.read()
 
-def get_pyhp_file_path(absolute_path: str) -> str:
-    if os.path.exists(absolute_path):
+    def is_dir(self, path: PurePath) -> bool:
+        return self.get_absolute_path(path).is_dir()
+
+    def is_file(self, path: PurePath) -> bool:
+        return self.get_absolute_path(path).is_file()
+
+    def is_pyhp_file(self, path: PurePath) -> bool:
+        return self.get_absolute_path(path).suffix == f'.{PYHP_FILE_EXTENSION}'
+
+    def get_absolute_path(self, path: PurePath) -> Path:
+        absolute_path = (self._base_dir / path).resolve()
+        if self._base_dir not in absolute_path.parents:
+            raise RuntimeError('Path is outside of base directory.')
         return absolute_path
-
-    if os.path.isdir(absolute_path):
-        return os.path.join(absolute_path, f'index.{PYHP_FILE_EXTENSION}')
-
-    possible_path = f'{absolute_path}.{PYHP_FILE_EXTENSION}'
-    if os.path.exists(possible_path):
-        return possible_path
-
-    raise FileNotFoundError(f'File not found: {absolute_path}')
-
-
-def get_absolute_path(relative_path: str, base_dir: str) -> str:
-    return os.path.join(base_dir, relative_path)
-
-
-def get_directory(absolute_path: str) -> str:
-    return os.path.dirname(absolute_path)

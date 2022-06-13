@@ -2,7 +2,7 @@ Hello world.
 
 Here is the contents of test.pyhp:
 <pyhp>
-pyhp.include('test.pyhp')
+pyhp.display('test.pyhp')
 
 print(pyhp.current_dir, end='<br>')
 
@@ -10,4 +10,9 @@ print('Cookies:', pyhp.cookies, end='<br>')
 print('Get:', pyhp.get, end='<br>')
 print('Post:', pyhp.post, end='<br>')
 
+import examples.thing as thing  # TODO: Fix this issue - you shouldn't have to prefix it with examples.
+thing.f()
+
 </pyhp>
+
+<img src="./snake.jpg" alt="A snake"> <!-- https://www.pexels.com/photo/green-snake-45246/ -->

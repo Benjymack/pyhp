@@ -18,9 +18,12 @@ TestPyhpFileProcessing:
 
 from unittest import TestCase
 from datetime import datetime
+from pathlib import PurePath
+
+from mocks import MockFileProcessor
 
 from pyhp.text_processing import remove_initial_indentation, prepare_code_text
-from pyhp.file_processing import parse_html
+from pyhp.hypertext_processing import parse_text
 from pyhp.code_execution import prepare_globals_locals, run_parsed_code
 from pyhp.cookies import NewCookie
 from pyhp.pyhp import Pyhp
@@ -41,7 +44,7 @@ else:
         )
 
         for string in cases:
-            self.assertEqual(remove_initial_indentation(string), string)
+            self.assertEqual(string, remove_initial_indentation(string))
 
     def test_indented(self):
         cases = (
@@ -53,7 +56,7 @@ else:
         )
 
         for indented, unindented in cases:
-            self.assertEqual(remove_initial_indentation(indented), unindented)
+            self.assertEqual(unindented, remove_initial_indentation(indented))
 
     def test_less_indentation_in_subsequent_lines_than_first_line(self):
         error_cases = [
@@ -97,7 +100,8 @@ class TestPyhpPrepareCodeText(TestCase):
 class TestPyhpPrepareGlobalsLocals(TestCase):
     """Tests that the globals and locals contain the required information."""
     def test_typical_globals(self):
-        pyhp_class = Pyhp('.')
+        file_processor = MockFileProcessor()
+        pyhp_class = Pyhp(PurePath(), file_processor)
         self.assertEqual(prepare_globals_locals(pyhp_class),
                          ({'pyhp': pyhp_class}, {}))
         self.assertIs(prepare_globals_locals(pyhp_class)[0]['pyhp'], pyhp_class)
@@ -113,8 +117,7 @@ class TestPyhpRunParsedCode(TestCase):
         ]
 
         for case in cases:
-            pyhp_class = Pyhp('.')
-            self.assertEqual(run_parsed_code(parse_html(case), pyhp_class), case)
+            self.assertEqual(create_file_processor_and_run_code(case), case)
 
     def test_blank_pyhp_tags(self):
         cases = [
@@ -126,8 +129,7 @@ class TestPyhpRunParsedCode(TestCase):
         ]
 
         for case in cases:
-            pyhp_class = Pyhp('.')
-            self.assertEqual(run_parsed_code(parse_html(case), pyhp_class), '')
+            self.assertEqual(create_file_processor_and_run_code(case), '')
 
     def test_print_statement(self):
         cases = [
@@ -137,8 +139,7 @@ class TestPyhpRunParsedCode(TestCase):
         ]
 
         for input_code, expected in cases:
-            pyhp_class = Pyhp('.')
-            self.assertEqual(run_parsed_code(parse_html(input_code), pyhp_class),
+            self.assertEqual(create_file_processor_and_run_code(input_code),
                              expected)
 
     def test_get_cookies(self):
@@ -158,10 +159,10 @@ class TestPyhpRunParsedCode(TestCase):
         ]
 
         for case in cases:
-            dom = parse_html(case[0])
-            pyhp_class = Pyhp('.')
-            run_parsed_code(dom, pyhp_class)
-            self.assertEqual(pyhp_class.get_new_cookies(), case[1])
+            file_processor = MockFileProcessor()
+            pyhp_class = Pyhp(PurePath(), file_processor)
+            run_parsed_code(parse_text(case[0]), pyhp_class)
+            self.assertEqual(case[1], pyhp_class.get_new_cookies())
 
     def test_get_parameters(self):
         cases = [
@@ -171,9 +172,10 @@ class TestPyhpRunParsedCode(TestCase):
         ]
 
         for case in cases:
-            dom = parse_html(case[0])
-            pyhp_class = Pyhp('.', get=case[1])
-            self.assertEqual(run_parsed_code(dom, pyhp_class), case[2])
+            file_processor = MockFileProcessor()
+            pyhp_class = Pyhp(PurePath(), file_processor, get=case[1])
+            self.assertEqual(run_parsed_code(parse_text(case[0]), pyhp_class),
+                             case[2])
 
     def test_post_parameters(self):
         cases = [
@@ -183,9 +185,10 @@ class TestPyhpRunParsedCode(TestCase):
         ]
 
         for case in cases:
-            dom = parse_html(case[0])
-            pyhp_class = Pyhp('.', post=case[1])
-            self.assertEqual(run_parsed_code(dom, pyhp_class), case[2])
+            file_processor = MockFileProcessor()
+            pyhp_class = Pyhp(PurePath(), file_processor, post=case[1])
+            self.assertEqual(run_parsed_code(parse_text(case[0]), pyhp_class),
+                             case[2])
 
     def test_include(self):
         pass  # TODO: Finish
@@ -198,17 +201,26 @@ class TestPyhpRunParsedCode(TestCase):
         ]
 
         for case in cases:
+            file_processor = MockFileProcessor()
+            dom = parse_text(case[0])
+
             # Run with debug
-            dom = parse_html(case[0])
-            pyhp_class = Pyhp('.', debug=True)
+            pyhp_class = Pyhp(PurePath(), file_processor, debug=True)
             self.assertIn(case[1], run_parsed_code(dom, pyhp_class))
 
             # Run without debug
-            dom = parse_html(case[0])
-            pyhp_class = Pyhp('.', debug=False)
+            pyhp_class = Pyhp(PurePath(), file_processor, debug=False)
             with self.assertRaises(RuntimeError):
                 run_parsed_code(dom, pyhp_class)
 
 
 class TestPyhpFileProcessing(TestCase):
     """Tests that PyHP can load and execute files."""
+    def test_get_directory(self):
+        pass  # TODO: Finish
+
+
+def create_file_processor_and_run_code(case: str):
+    file_processor = MockFileProcessor(case)
+    pyhp_class = Pyhp(PurePath(), file_processor)
+    return pyhp_class.include('index.pyhp')

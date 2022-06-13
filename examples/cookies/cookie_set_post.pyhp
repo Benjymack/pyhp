@@ -1,5 +1,6 @@
 <pyhp>
 if 'key' in pyhp.post and 'value' in pyhp.post:
-    pyhp.set_cookie(pyhp.post['key'], pyhp.post['value'])
+    pyhp.set_cookie(pyhp.post['key'], value=pyhp.post['value'])
     print(f'Successfully set cookie "{pyhp.post["key"]}" to "{pyhp.post["value"]}"')
 </pyhp>
+<button onclick="window.location.href='./index'">Return to index</button>

@@ -3,7 +3,7 @@
     This is a paragraph tag.
     <ul>
         <pyhp>
-    print(pyhp.current_dir, end='<br>')
+    print('other:', pyhp.current_dir, end='<br>')
     for _ in range(10):
         print("<li>Hello</li>")
         </pyhp>
