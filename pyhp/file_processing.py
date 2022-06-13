@@ -24,7 +24,7 @@ class FileProcessor:
         raise NotImplementedError
 
     def is_pyhp_file(self, path: PurePath) -> bool:
-        raise NotImplementedError
+        return path.suffix == f'.{PYHP_FILE_EXTENSION}'
 
     def get_true_path(self, path: PurePath) -> PurePath:
         if self.is_dir(path):
@@ -60,9 +60,6 @@ class SystemFileProcessor(FileProcessor):
 
     def is_file(self, path: PurePath) -> bool:
         return self.get_absolute_path(path).is_file()
-
-    def is_pyhp_file(self, path: PurePath) -> bool:
-        return self.get_absolute_path(path).suffix == f'.{PYHP_FILE_EXTENSION}'
 
     def get_absolute_path(self, path: PurePath) -> Path:
         absolute_path = (self._base_dir / path).resolve()
