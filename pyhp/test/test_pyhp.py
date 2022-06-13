@@ -87,6 +87,7 @@ class TestPyhpPrepareCodeText(TestCase):
     Tests that the code text is correctly prepared
     (excess newlines removed, etc)
     """
+
     def test_extra_newlines(self):
         cases = [
             ('x = 1\n\n', 'x = 1'),
@@ -225,6 +226,35 @@ class TestPyhpFileProcessing(TestCase):
 
     def test_get_directory(self):
         pass  # TODO: Finish
+
+    def test_get_true_path(self):
+        file_contents = {'index.pyhp': '<pyhp>print("Hello")</pyhp>'}
+        directories = ['dir', 'foo', 'foo/bar']
+
+        file_processor = MockFileProcessor(
+            {PurePath(f): contents for f, contents in file_contents.items()},
+            {PurePath(d) for d in directories}
+        )
+
+        normal_cases = [
+            ('index', 'index.pyhp'),
+            ('index.pyhp', 'index.pyhp'),
+        ]
+        error_cases = [
+            ('', ValueError),
+            ('index.pyhp.txt', FileNotFoundError),
+            ('dir', IsADirectoryError),
+            ('foo/bar', IsADirectoryError),
+            ('foo/baz', FileNotFoundError),
+        ]
+
+        for case in normal_cases:
+            self.assertEqual(file_processor.get_true_path(PurePath(case[0])),
+                             PurePath(case[1]))
+
+        for case in error_cases:
+            with self.assertRaises(case[1]):
+                file_processor.get_true_path(PurePath(case[0]))
 
 
 def create_file_processor_and_run_code(case: str):
