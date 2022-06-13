@@ -8,16 +8,17 @@ Run the examples with `set FLASK_APP=pyhp_flask:create_app('./examples')` and
 """
 
 from typing import Optional
-from flask import Flask, request, make_response, Response, redirect, \
-    send_from_directory
 from pathlib import Path, PurePath
 
+from flask import Flask, request, make_response, Response, redirect, \
+    send_from_directory
+
 try:
-    from pyhp import Pyhp, RootPyhp
+    from pyhp import RootPyhp
     from pyhp.file_processing import SystemFileProcessor, PYHP_FILE_EXTENSION
     from cookies import NewCookie, DeleteCookie
 except ImportError:
-    from .pyhp import Pyhp, RootPyhp
+    from .pyhp import RootPyhp
     from .file_processing import SystemFileProcessor, PYHP_FILE_EXTENSION
     from .cookies import NewCookie, DeleteCookie
 
@@ -74,11 +75,10 @@ def process_request(file_processor: SystemFileProcessor,
             pyhp_class.get_new_cookies(),
             pyhp_class.get_delete_cookies(),
             pyhp_class.get_redirect_information())
-    else:
-        return send_from_directory(
-            file_processor.get_absolute_path(pyhp_class.current_dir),
-            relative_path
-        )
+    return send_from_directory(
+        file_processor.get_absolute_path(pyhp_class.current_dir),
+        relative_path
+    )
 
 
 def redirect_or_create_response(page_text: str, status_code: int,

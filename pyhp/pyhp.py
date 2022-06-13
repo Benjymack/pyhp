@@ -18,7 +18,7 @@ except ImportError:
     from file_processing import FileProcessor, SystemFileProcessor
     from code_execution import run_parsed_code
     from cookies import NewCookie, DeleteCookie
-    from pyhp.hypertext_processing import parse_text
+    from hypertext_processing import parse_text
 
 __all__ = ['Pyhp', 'RootPyhp']
 
@@ -135,6 +135,10 @@ class Pyhp:
 
 
 class RootPyhp(Pyhp):
+    """
+    The interface for the PyHP file to interact with the server,
+    and the web page, with the ability to run files.
+    """
     def run_file(self, relative_path: PurePath):
         """Run the file."""
         return run_parsed_code(self._parse_file(relative_path), self)

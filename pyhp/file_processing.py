@@ -11,6 +11,9 @@ PYHP_FILE_EXTENSION = 'pyhp'
 
 
 class FileProcessor:
+    """
+    Abstract class for interacting with the file system.
+    """
     def get_file_contents(self, path: PurePath) -> str:
         raise NotImplementedError
 
@@ -39,6 +42,10 @@ class FileProcessor:
 
 
 class SystemFileProcessor(FileProcessor):
+    """
+    Implementation of the FileProcessor interface, for normal interation with
+    system files and directories.
+    """
     def __init__(self, base_dir: Path):
         if not base_dir.is_dir():
             raise FileNotFoundError('The base directory does not exist.')

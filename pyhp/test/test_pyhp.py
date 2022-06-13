@@ -20,7 +20,10 @@ from unittest import TestCase
 from datetime import datetime
 from pathlib import PurePath
 
-from mocks import MockFileProcessor
+try:
+    from mocks import MockFileProcessor
+except ImportError:
+    from .mocks import MockFileProcessor
 
 from pyhp.text_processing import remove_initial_indentation, prepare_code_text
 from pyhp.hypertext_processing import parse_text

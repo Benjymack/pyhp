@@ -12,3 +12,12 @@ class MockFileProcessor(FileProcessor):
         if isinstance(self._file_contents, dict):
             return self._file_contents[path]
         return self._file_contents
+
+    def is_dir(self, path: PurePath) -> bool:
+        raise NotImplementedError
+
+    def is_file(self, path: PurePath) -> bool:
+        raise NotImplementedError
+
+    def is_pyhp_file(self, path: PurePath) -> bool:
+        raise NotImplementedError
