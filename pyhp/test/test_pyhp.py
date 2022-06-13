@@ -34,6 +34,7 @@ from pyhp.pyhp import Pyhp
 
 class TestPyhpRemoveInitialIndentation(TestCase):
     """Tests that the initial indentation is correctly removed."""
+
     def test_no_indentation(self):
         cases = (
             '',
@@ -102,6 +103,7 @@ class TestPyhpPrepareCodeText(TestCase):
 
 class TestPyhpPrepareGlobalsLocals(TestCase):
     """Tests that the globals and locals contain the required information."""
+
     def test_typical_globals(self):
         file_processor = MockFileProcessor()
         pyhp_class = Pyhp(PurePath(), file_processor)
@@ -112,6 +114,7 @@ class TestPyhpPrepareGlobalsLocals(TestCase):
 
 class TestPyhpRunParsedCode(TestCase):
     """Tests that the code is correctly run, including cookies, GET, POST."""
+
     def test_normal_html(self):
         cases = [
             '<p>Hello</p>',
@@ -219,6 +222,7 @@ class TestPyhpRunParsedCode(TestCase):
 
 class TestPyhpFileProcessing(TestCase):
     """Tests that PyHP can load and execute files."""
+
     def test_get_directory(self):
         pass  # TODO: Finish
 

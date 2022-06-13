@@ -48,9 +48,6 @@ def create_app(base_dir: str) -> Flask:
 
         current_dir = relative_path.parent
 
-        print('Current directory:', current_dir)
-        print('File name:', relative_path.name)
-
         pyhp_class = RootPyhp(current_dir, file_processor, app.config['DEBUG'],
                               dict(request.cookies), dict(request.args),
                               dict(request.form))
