@@ -12,3 +12,7 @@ PYHP_TAG = 'pyhp'
 
 def get_code_blocks(dom: BeautifulSoup) -> ResultSet[Tag]:
     return dom.select(f'{PYHP_TAG}:not({PYHP_TAG} *)')
+
+
+def parse_text(text: str) -> BeautifulSoup:
+    return BeautifulSoup(text, 'html.parser')

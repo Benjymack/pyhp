@@ -2,8 +2,7 @@
 <pyhp>
 import math
 
-pyhp.include('subfolder/other.pyhp')
-print(pyhp.current_dir, end='<br>')
+pyhp.display('subfolder/other.pyhp')
 
 def thing():
     print("Hello")
@@ -12,11 +11,11 @@ for i in range(10):
     print(i)
     thing()</pyhp>
 <div>
-    <italic>
+    <i>
         <pyhp>
 if True:
     thing()
     print(math.sqrt(2))
         </pyhp>
-    </italic>
+    </i>
 </div>

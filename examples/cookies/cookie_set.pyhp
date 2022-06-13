@@ -1,4 +1,5 @@
-<form action="cookie_set_post" method="POST">
+<pyhp>pyhp.display('index.pyhp')</pyhp>
+<form action="./cookie_set_post" method="POST">
     <input type="text" name="key">
     <input type="text" name="value">
     <input type="submit" value="submit">

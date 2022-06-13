@@ -1,1 +1,12 @@
-<a href="cookie_get.pyhp">Get Cookie</a>
+<html lang="en">
+    <head>
+        <title>Cookies</title>
+        <link rel="stylesheet" href="../css/main.css">
+    </head>
+</html>
+
+<a href="./cookie_list">List Cookies</a><br>
+<a href="./cookie_set">Set Cookie</a><br>
+<a href="./cookie_delete">Delete Cookie</a>
+
+<img src="./cookie.jpg" alt="A cookie"> <!-- https://www.pexels.com/photo/macro-photography-of-pile-of-3-cookie-230325/ -->

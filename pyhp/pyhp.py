@@ -4,20 +4,23 @@ PyHP: Python Hypertext Preprocessor
 
 from typing import Optional
 from argparse import ArgumentParser
+from pathlib import PurePath, Path
+from bs4 import BeautifulSoup
 
 import markupsafe
 
 try:
-    from pyhp.file_processing import get_absolute_path, load_file, get_directory
+    from pyhp.file_processing import FileProcessor, SystemFileProcessor
     from pyhp.code_execution import run_parsed_code
     from pyhp.cookies import NewCookie, DeleteCookie
+    from pyhp.hypertext_processing import parse_text
 except ImportError:
-    from file_processing import get_absolute_path, load_file, get_directory
+    from file_processing import FileProcessor, SystemFileProcessor
     from code_execution import run_parsed_code
     from cookies import NewCookie, DeleteCookie
+    from hypertext_processing import parse_text
 
-
-__all__ = ['load_file', 'run_parsed_code', 'get_absolute_path', 'Pyhp']
+__all__ = ['Pyhp', 'RootPyhp']
 
 
 class Pyhp:
@@ -28,14 +31,15 @@ class Pyhp:
 
     # pylint: disable=too-many-instance-attributes, too-many-arguments
 
-    def __init__(self, current_dir: str,
+    def __init__(self, current_dir: PurePath,
+                 file_processor: FileProcessor,
                  debug: bool = False,
                  cookies: Optional[dict[str, str]] = None,
                  get: Optional[dict[str, str]] = None,
                  post: Optional[dict[str, str]] = None):
-
         self._current_dir = current_dir
         self._debug = debug
+        self._file_processor = file_processor
 
         self._cookies: dict[str, str] = cookies or {}
         self._get: dict[str, str] = get or {}
@@ -46,21 +50,34 @@ class Pyhp:
 
         self._redirect_info: Optional[(str, int)] = None
 
+    def display(self, relative_path: str):
+        """Include another pyhp file and print it."""
+        print(self.include(relative_path), end='')
+
     def include(self, relative_path: str) -> str:
         """
         Include another pyhp file into the current one,
         and return the output HTML
         """
-        absolute_path = get_absolute_path(relative_path, self._current_dir)
+        new_current_dir = (self._current_dir / PurePath(relative_path)).parent
+        print(f'<b>Including: {relative_path}</b><br>')
+        print(f'<b>Current dir: {self._current_dir}</b><br>')
+        print(f'<b>New dir: {new_current_dir}</b><br>')
 
-        new_pyhp_class = Pyhp(get_directory(absolute_path), self._debug,
-                              self._cookies, self._get, self._post)
+        new_pyhp_class = Pyhp(new_current_dir, self._file_processor,
+                              self._debug, self._cookies, self._get, self._post)
 
-        return run_parsed_code(load_file(absolute_path), new_pyhp_class)
+        return run_parsed_code(
+            self._parse_file(PurePath(relative_path)),
+            new_pyhp_class
+        )
 
-    def display(self, relative_path: str):
-        """Include another pyhp file and print it."""
-        print(self.include(relative_path), end='')
+    def _parse_file(self, relative_path: PurePath) -> BeautifulSoup:
+        return parse_text(self._load_file(relative_path))
+
+    def _load_file(self, relative_path: PurePath) -> str:
+        path = self._current_dir / relative_path
+        return self._file_processor.get_file_contents(path)
 
     def redirect(self, url: str, status_code: int = 302):
         """Redirect to another url."""
@@ -92,7 +109,7 @@ class Pyhp:
         return str(markupsafe.escape(text))
 
     @property
-    def current_dir(self) -> str:
+    def current_dir(self) -> PurePath:
         """Return the directory of the currently executing file."""
         return self._current_dir
 
@@ -117,6 +134,16 @@ class Pyhp:
         return self._post
 
 
+class RootPyhp(Pyhp):
+    """
+    The interface for the PyHP file to interact with the server,
+    and the web page, with the ability to run files.
+    """
+    def run_file(self, relative_path: PurePath):
+        """Run the file."""
+        return run_parsed_code(self._parse_file(relative_path), self)
+
+
 if __name__ == '__main__':
     parser = ArgumentParser(description='Python Hypertext Preprocessor (PyHP)')
     parser.add_argument('file', help='File to run')
@@ -125,7 +152,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    pyhp_class = Pyhp(get_directory(args.file), args.debug)
-    dom = load_file(args.file)
-    output = run_parsed_code(dom, pyhp_class)
-    print(output)
+    base_dir = PurePath(args.file).parent
+    pyhp_class = Pyhp(base_dir, SystemFileProcessor(Path(base_dir)), args.debug)
+
+    print(pyhp_class.include(args.file))

@@ -1,3 +1,4 @@
+<pyhp>pyhp.display('index.pyhp')</pyhp>
 These are all the cookies:
 <ul>
     <pyhp>
