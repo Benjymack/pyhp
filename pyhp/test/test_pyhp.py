@@ -6,8 +6,9 @@ TestPyhpRemoveInitialIndentation:
 TestPyhpPrepareCodeText:
     Tests that the code text is correctly prepared
     (excess newlines removed, etc)
-TestPyhpPrepareGlobalsLocals:
-    Tests that the globals and locals contain the required information.
+TestPyhpPrepareContext:
+    Tests that the context (globals and locals) contains the required
+    information.
 TestPyhpRunParsedCode:
     Tests that the code is correctly run, including cookies, GET, POST.
 TestPyhpFileProcessing:
@@ -27,7 +28,7 @@ except ImportError:
 
 from pyhp.text_processing import remove_initial_indentation, prepare_code_text
 from pyhp.hypertext_processing import parse_text
-from pyhp.code_execution import prepare_globals_locals, run_parsed_code
+from pyhp.code_execution import prepare_context, run_parsed_code
 from pyhp.cookies import NewCookie
 from pyhp.pyhp import Pyhp
 
@@ -102,15 +103,15 @@ class TestPyhpPrepareCodeText(TestCase):
             self.assertEqual(prepare_code_text(input_code), output)
 
 
-class TestPyhpPrepareGlobalsLocals(TestCase):
+class TestPyhpPrepareContext(TestCase):
     """Tests that the globals and locals contain the required information."""
 
     def test_typical_globals(self):
         file_processor = MockFileProcessor()
         pyhp_class = Pyhp(PurePath(), file_processor)
-        self.assertEqual(prepare_globals_locals(pyhp_class),
+        self.assertEqual(prepare_context(pyhp_class),
                          ({'pyhp': pyhp_class}, {}))
-        self.assertIs(prepare_globals_locals(pyhp_class)[0]['pyhp'], pyhp_class)
+        self.assertIs(prepare_context(pyhp_class)[0]['pyhp'], pyhp_class)
 
 
 class TestPyhpRunParsedCode(TestCase):
