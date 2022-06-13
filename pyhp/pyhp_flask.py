@@ -15,11 +15,11 @@ from flask import Flask, request, make_response, Response, redirect, \
 
 try:
     from pyhp import RootPyhp
-    from pyhp.file_processing import SystemFileProcessor, PYHP_FILE_EXTENSION
+    from pyhp.file_processing import SystemFileProcessor
     from cookies import NewCookie, DeleteCookie
 except ImportError:
     from .pyhp import RootPyhp
-    from .file_processing import SystemFileProcessor, PYHP_FILE_EXTENSION
+    from .file_processing import SystemFileProcessor
     from .cookies import NewCookie, DeleteCookie
 
 
@@ -64,7 +64,7 @@ def create_app(base_dir: str) -> Flask:
 
 def process_request(file_processor: SystemFileProcessor,
                     relative_path: PurePath, pyhp_class: RootPyhp) -> Response:
-    print('Processing file:', relative_path)
+    """Process a request."""
 
     if file_processor.is_pyhp_file(relative_path):
         page_text = pyhp_class.run_file(relative_path)
