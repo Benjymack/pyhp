@@ -29,7 +29,7 @@ from pyhp.text_processing import remove_initial_indentation, prepare_code_text
 from pyhp.hypertext_processing import parse_text
 from pyhp.code_execution import prepare_globals_locals, run_parsed_code
 from pyhp.cookies import NewCookie
-from pyhp.pyhp import Pyhp
+from pyhp.pyhp_interface import Pyhp
 
 
 class TestPyhpRemoveInitialIndentation(TestCase):
