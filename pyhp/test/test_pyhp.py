@@ -29,7 +29,7 @@ except ImportError:
 from pyhp.text_processing import remove_initial_indentation, prepare_code_text
 from pyhp.hypertext_processing import parse_text
 from pyhp.code_execution import prepare_context, run_parsed_code
-from pyhp.cookies import NewCookie
+from pyhp.cookies import NewCookie, DeleteCookie
 from pyhp.pyhp import Pyhp
 
 
@@ -171,6 +171,33 @@ class TestPyhpRunParsedCode(TestCase):
             pyhp_class = Pyhp(PurePath(), file_processor)
             run_parsed_code(parse_text(case[0]), pyhp_class)
             self.assertEqual(case[1], pyhp_class.get_new_cookies())
+
+    def test_delete_cookies(self):
+        # Create a cookie then delete it
+        file_processor = MockFileProcessor()
+        pyhp_class = Pyhp(PurePath(), file_processor)
+        code = '<pyhp>pyhp.set_cookie("foo", value="bar")\n' \
+               'pyhp.delete_cookie("foo")</pyhp>'
+        run_parsed_code(parse_text(code), pyhp_class)
+        self.assertEqual({'foo': NewCookie('foo', 'bar')},
+                         pyhp_class.get_new_cookies())
+        self.assertEqual({'foo': DeleteCookie('foo')},
+                         pyhp_class.get_delete_cookies())
+
+        # Start with a cookie then delete it
+        pyhp_class = Pyhp(PurePath(), file_processor, cookies={'foo': 'bar'})
+        code = '<pyhp>pyhp.delete_cookie("foo")</pyhp>'
+        run_parsed_code(parse_text(code), pyhp_class)
+        self.assertEqual({'foo': DeleteCookie('foo')},
+                         pyhp_class.get_delete_cookies())
+
+        # Delete an unexisting cookie
+        pyhp_class = Pyhp(PurePath(), file_processor)
+        code = '<pyhp>pyhp.delete_cookie("foo")</pyhp>'
+        run_parsed_code(parse_text(code), pyhp_class)
+        # TODO: Should this be empty?
+        self.assertEqual({'foo': DeleteCookie('foo')},
+                         pyhp_class.get_delete_cookies())
 
     def test_get_parameters(self):
         cases = [
