@@ -228,6 +228,24 @@ class TestPyhpRunParsedCode(TestCase):
     def test_include(self):
         pass  # TODO: Finish
 
+    def test_display(self):
+        file_processor = MockFileProcessor({
+            PurePath('foo.html'): '<p>Hello</p>',
+            PurePath('bar.pyhp'): '<pyhp>x=1\nprint(x + 2)</pyhp>',
+        })
+        pyhp_class = Pyhp(PurePath(), file_processor)
+
+        self.assertEqual(
+            run_parsed_code(parse_text('<pyhp>pyhp.display("foo.html")</pyhp>'),
+                            pyhp_class),
+            '<p>Hello</p>'
+        )
+        self.assertEqual(
+            run_parsed_code(parse_text('<pyhp>pyhp.display("bar.pyhp")</pyhp>'),
+                            pyhp_class),
+            '3\n'
+        )
+
     def test_run_error_code(self):
         cases = [
             ('<pyhp>x = </pyhp>', 'SyntaxError: invalid syntax'),
