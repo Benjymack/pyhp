@@ -266,6 +266,22 @@ class TestPyhpRunParsedCode(TestCase):
             with self.assertRaises(RuntimeError):
                 run_parsed_code(dom, pyhp_class)
 
+    def test_escape(self):
+        cases = [
+            ('<', '&lt;'),
+            ('>', '&gt;'),
+            ('&', '&amp;'),
+            ('"', '&#34;'),
+            ("'", '&#39;'),
+            ('<script>', '&lt;script&gt;'),
+            ('</script>', '&lt;/script&gt;'),
+            ('<pyhp>print("Hello World!")</pyhp>',
+             '&lt;pyhp&gt;print(&#34;Hello World!&#34;)&lt;/pyhp&gt;'),
+        ]
+
+        for case in cases:
+            self.assertEqual(case[1], Pyhp.escape(case[0]))
+
 
 class TestPyhpFileProcessing(TestCase):
     """Tests that PyHP can load and execute files."""
