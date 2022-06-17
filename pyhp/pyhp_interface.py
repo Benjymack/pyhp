@@ -8,12 +8,12 @@ from bs4 import BeautifulSoup
 import markupsafe
 
 try:
-    from pyhp.file_processing import FileProcessor, SystemFileProcessor
+    from pyhp.file_processing import FileProcessor
     from pyhp.code_execution import run_parsed_code
     from pyhp.cookies import NewCookie, DeleteCookie
     from pyhp.hypertext_processing import parse_text
 except ImportError:
-    from file_processing import FileProcessor, SystemFileProcessor
+    from file_processing import FileProcessor
     from code_execution import run_parsed_code
     from cookies import NewCookie, DeleteCookie
     from hypertext_processing import parse_text
