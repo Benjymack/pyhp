@@ -1,16 +1,22 @@
 """
-PyHP: Python Hypertext Preprocessor
+Interface for the PyHP programs.
 """
 
-from argparse import ArgumentParser
-from pathlib import PurePath, Path
+from typing import Optional
+from pathlib import PurePath
+from bs4 import BeautifulSoup
+import markupsafe
 
 try:
-    from pyhp.pyhp_interface import Pyhp
-    from pyhp.file_processing import SystemFileProcessor
+    from pyhp.file_processing import FileProcessor
+    from pyhp.code_execution import run_parsed_code
+    from pyhp.cookies import NewCookie, DeleteCookie
+    from pyhp.hypertext_processing import parse_text
 except ImportError:
-    from .pyhp_interface import Pyhp
-    from pyhp.file_processing import SystemFileProcessor
+    from file_processing import FileProcessor
+    from code_execution import run_parsed_code
+    from cookies import NewCookie, DeleteCookie
+    from hypertext_processing import parse_text
 
 __all__ = ['Pyhp', 'RootPyhp']
 
@@ -52,6 +58,9 @@ class Pyhp:
         and return the output HTML
         """
         new_current_dir = (self._current_dir / PurePath(relative_path)).parent
+        print(f'<b>Including: {relative_path}</b><br>')
+        print(f'<b>Current dir: {self._current_dir}</b><br>')
+        print(f'<b>New dir: {new_current_dir}</b><br>')
 
         new_pyhp_class = Pyhp(new_current_dir, self._file_processor,
                               self._debug, self._cookies, self._get, self._post)
@@ -131,17 +140,3 @@ class RootPyhp(Pyhp):
     def run_file(self, relative_path: PurePath):
         """Run the file."""
         return run_parsed_code(self._parse_file(relative_path), self)
-
-
-if __name__ == '__main__':
-    parser = ArgumentParser(description='Python Hypertext Preprocessor (PyHP)')
-    parser.add_argument('file', help='File to run')
-    parser.add_argument('-d', '--debug', action='store_true', help='Debug mode',
-                        default=False)
-
-    args = parser.parse_args()
-
-    base_dir = PurePath(args.file).parent
-    pyhp_class = Pyhp(base_dir, SystemFileProcessor(Path(base_dir)), args.debug)
-
-    print(pyhp_class.include(args.file))

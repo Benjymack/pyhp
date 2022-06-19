@@ -18,7 +18,7 @@ try:
     from pyhp.file_processing import SystemFileProcessor
     from cookies import NewCookie, DeleteCookie
 except ImportError:
-    from .pyhp import RootPyhp
+    from .pyhp_interface import RootPyhp
     from .file_processing import SystemFileProcessor
     from .cookies import NewCookie, DeleteCookie
 

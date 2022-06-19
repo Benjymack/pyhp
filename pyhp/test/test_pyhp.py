@@ -30,7 +30,7 @@ from pyhp.text_processing import remove_initial_indentation, prepare_code_text
 from pyhp.hypertext_processing import parse_text
 from pyhp.code_execution import prepare_context, run_parsed_code
 from pyhp.cookies import NewCookie, DeleteCookie
-from pyhp.pyhp import Pyhp, RootPyhp
+from pyhp.pyhp_interface import Pyhp, RootPyhp
 
 
 class TestPyhpRemoveInitialIndentation(TestCase):
