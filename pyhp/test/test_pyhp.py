@@ -30,7 +30,7 @@ from pyhp.text_processing import remove_initial_indentation, prepare_code_text
 from pyhp.hypertext_processing import parse_text
 from pyhp.code_execution import prepare_context, run_parsed_code
 from pyhp.cookies import NewCookie, DeleteCookie
-from pyhp.pyhp import Pyhp
+from pyhp.pyhp import Pyhp, RootPyhp
 
 
 class TestPyhpRemoveInitialIndentation(TestCase):
@@ -281,6 +281,43 @@ class TestPyhpRunParsedCode(TestCase):
 
         for case in cases:
             self.assertEqual(case[1], Pyhp.escape(case[0]))
+
+    def test_redirect(self):
+        cases = [
+            ('<pyhp>pyhp.redirect("https://www.google.com")</pyhp>',
+             ('https://www.google.com', 302)),
+            ('<pyhp>pyhp.redirect("http://www.google.com", 301)</pyhp>',
+             ('http://www.google.com', 301)),
+            ('<pyhp>pyhp.redirect("test", 308)</pyhp>',
+             ('test', 308)),
+            ('<pyhp></pyhp>', None),
+        ]
+
+        for case in cases:
+            file_processor = MockFileProcessor()
+            pyhp_class = Pyhp(PurePath(), file_processor)
+            run_parsed_code(parse_text(case[0]), pyhp_class)
+            self.assertEqual(pyhp_class.get_redirect_information(), case[1])
+
+
+class TestRootPyhp(TestCase):
+    """Tests that the RootPyhp class functions correctly."""
+
+    def test_run_file(self):
+        file_processor = MockFileProcessor({
+            PurePath('foo.html'): '<p>Hello</p>',
+            PurePath('bar.pyhp'): '<pyhp>x=1\nprint(x + 2)</pyhp>',
+        })
+        root_pyhp = RootPyhp(PurePath(), file_processor)
+
+        self.assertEqual(
+            root_pyhp.run_file(PurePath('foo.html')),
+            '<p>Hello</p>'
+        )
+        self.assertEqual(
+            root_pyhp.run_file(PurePath('bar.pyhp')),
+            '3\n'
+        )
 
 
 class TestPyhpFileProcessing(TestCase):
