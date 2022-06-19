@@ -6,8 +6,9 @@ TestPyhpRemoveInitialIndentation:
 TestPyhpPrepareCodeText:
     Tests that the code text is correctly prepared
     (excess newlines removed, etc)
-TestPyhpPrepareGlobalsLocals:
-    Tests that the globals and locals contain the required information.
+TestPyhpPrepareContext:
+    Tests that the context (globals and locals) contains the required
+    information.
 TestPyhpRunParsedCode:
     Tests that the code is correctly run, including cookies, GET, POST.
 TestPyhpFileProcessing:
@@ -27,13 +28,14 @@ except ImportError:
 
 from pyhp.text_processing import remove_initial_indentation, prepare_code_text
 from pyhp.hypertext_processing import parse_text
-from pyhp.code_execution import prepare_globals_locals, run_parsed_code
-from pyhp.cookies import NewCookie
-from pyhp.pyhp_interface import Pyhp
+from pyhp.code_execution import prepare_context, run_parsed_code
+from pyhp.cookies import NewCookie, DeleteCookie
+from pyhp.pyhp_interface import Pyhp, RootPyhp
 
 
 class TestPyhpRemoveInitialIndentation(TestCase):
     """Tests that the initial indentation is correctly removed."""
+
     def test_no_indentation(self):
         cases = (
             '',
@@ -86,6 +88,7 @@ class TestPyhpPrepareCodeText(TestCase):
     Tests that the code text is correctly prepared
     (excess newlines removed, etc)
     """
+
     def test_extra_newlines(self):
         cases = [
             ('x = 1\n\n', 'x = 1'),
@@ -100,18 +103,20 @@ class TestPyhpPrepareCodeText(TestCase):
             self.assertEqual(prepare_code_text(input_code), output)
 
 
-class TestPyhpPrepareGlobalsLocals(TestCase):
+class TestPyhpPrepareContext(TestCase):
     """Tests that the globals and locals contain the required information."""
+
     def test_typical_globals(self):
         file_processor = MockFileProcessor()
         pyhp_class = Pyhp(PurePath(), file_processor)
-        self.assertEqual(prepare_globals_locals(pyhp_class),
+        self.assertEqual(prepare_context(pyhp_class),
                          ({'pyhp': pyhp_class}, {}))
-        self.assertIs(prepare_globals_locals(pyhp_class)[0]['pyhp'], pyhp_class)
+        self.assertIs(prepare_context(pyhp_class)[0]['pyhp'], pyhp_class)
 
 
 class TestPyhpRunParsedCode(TestCase):
     """Tests that the code is correctly run, including cookies, GET, POST."""
+
     def test_normal_html(self):
         cases = [
             '<p>Hello</p>',
@@ -167,6 +172,33 @@ class TestPyhpRunParsedCode(TestCase):
             run_parsed_code(parse_text(case[0]), pyhp_class)
             self.assertEqual(case[1], pyhp_class.get_new_cookies())
 
+    def test_delete_cookies(self):
+        # Create a cookie then delete it
+        file_processor = MockFileProcessor()
+        pyhp_class = Pyhp(PurePath(), file_processor)
+        code = '<pyhp>pyhp.set_cookie("foo", value="bar")\n' \
+               'pyhp.delete_cookie("foo")</pyhp>'
+        run_parsed_code(parse_text(code), pyhp_class)
+        self.assertEqual({'foo': NewCookie('foo', 'bar')},
+                         pyhp_class.get_new_cookies())
+        self.assertEqual({'foo': DeleteCookie('foo')},
+                         pyhp_class.get_delete_cookies())
+
+        # Start with a cookie then delete it
+        pyhp_class = Pyhp(PurePath(), file_processor, cookies={'foo': 'bar'})
+        code = '<pyhp>pyhp.delete_cookie("foo")</pyhp>'
+        run_parsed_code(parse_text(code), pyhp_class)
+        self.assertEqual({'foo': DeleteCookie('foo')},
+                         pyhp_class.get_delete_cookies())
+
+        # Delete an unexisting cookie
+        pyhp_class = Pyhp(PurePath(), file_processor)
+        code = '<pyhp>pyhp.delete_cookie("foo")</pyhp>'
+        run_parsed_code(parse_text(code), pyhp_class)
+        # TODO: Should this be empty?
+        self.assertEqual({'foo': DeleteCookie('foo')},
+                         pyhp_class.get_delete_cookies())
+
     def test_get_parameters(self):
         cases = [
             ("<pyhp>print(pyhp.get['foo'])</pyhp>", {'foo': 'bar'}, 'bar\n'),
@@ -196,6 +228,24 @@ class TestPyhpRunParsedCode(TestCase):
     def test_include(self):
         pass  # TODO: Finish
 
+    def test_display(self):
+        file_processor = MockFileProcessor({
+            PurePath('foo.html'): '<p>Hello</p>',
+            PurePath('bar.pyhp'): '<pyhp>x=1\nprint(x + 2)</pyhp>',
+        })
+        pyhp_class = Pyhp(PurePath(), file_processor)
+
+        self.assertEqual(
+            run_parsed_code(parse_text('<pyhp>pyhp.display("foo.html")</pyhp>'),
+                            pyhp_class),
+            '<p>Hello</p>'
+        )
+        self.assertEqual(
+            run_parsed_code(parse_text('<pyhp>pyhp.display("bar.pyhp")</pyhp>'),
+                            pyhp_class),
+            '3\n'
+        )
+
     def test_run_error_code(self):
         cases = [
             ('<pyhp>x = </pyhp>', 'SyntaxError: invalid syntax'),
@@ -216,11 +266,94 @@ class TestPyhpRunParsedCode(TestCase):
             with self.assertRaises(RuntimeError):
                 run_parsed_code(dom, pyhp_class)
 
+    def test_escape(self):
+        cases = [
+            ('<', '&lt;'),
+            ('>', '&gt;'),
+            ('&', '&amp;'),
+            ('"', '&#34;'),
+            ("'", '&#39;'),
+            ('<script>', '&lt;script&gt;'),
+            ('</script>', '&lt;/script&gt;'),
+            ('<pyhp>print("Hello World!")</pyhp>',
+             '&lt;pyhp&gt;print(&#34;Hello World!&#34;)&lt;/pyhp&gt;'),
+        ]
+
+        for case in cases:
+            self.assertEqual(case[1], Pyhp.escape(case[0]))
+
+    def test_redirect(self):
+        cases = [
+            ('<pyhp>pyhp.redirect("https://www.google.com")</pyhp>',
+             ('https://www.google.com', 302)),
+            ('<pyhp>pyhp.redirect("http://www.google.com", 301)</pyhp>',
+             ('http://www.google.com', 301)),
+            ('<pyhp>pyhp.redirect("test", 308)</pyhp>',
+             ('test', 308)),
+            ('<pyhp></pyhp>', None),
+        ]
+
+        for case in cases:
+            file_processor = MockFileProcessor()
+            pyhp_class = Pyhp(PurePath(), file_processor)
+            run_parsed_code(parse_text(case[0]), pyhp_class)
+            self.assertEqual(pyhp_class.get_redirect_information(), case[1])
+
+
+class TestRootPyhp(TestCase):
+    """Tests that the RootPyhp class functions correctly."""
+
+    def test_run_file(self):
+        file_processor = MockFileProcessor({
+            PurePath('foo.html'): '<p>Hello</p>',
+            PurePath('bar.pyhp'): '<pyhp>x=1\nprint(x + 2)</pyhp>',
+        })
+        root_pyhp = RootPyhp(PurePath(), file_processor)
+
+        self.assertEqual(
+            root_pyhp.run_file(PurePath('foo.html')),
+            '<p>Hello</p>'
+        )
+        self.assertEqual(
+            root_pyhp.run_file(PurePath('bar.pyhp')),
+            '3\n'
+        )
+
 
 class TestPyhpFileProcessing(TestCase):
     """Tests that PyHP can load and execute files."""
+
     def test_get_directory(self):
         pass  # TODO: Finish
+
+    def test_get_true_path(self):
+        file_contents = {'index.pyhp': '<pyhp>print("Hello")</pyhp>'}
+        directories = ['dir', 'foo', 'foo/bar']
+
+        file_processor = MockFileProcessor(
+            {PurePath(f): contents for f, contents in file_contents.items()},
+            {PurePath(d) for d in directories}
+        )
+
+        normal_cases = [
+            ('index', 'index.pyhp'),
+            ('index.pyhp', 'index.pyhp'),
+        ]
+        error_cases = [
+            ('', ValueError),
+            ('index.pyhp.txt', FileNotFoundError),
+            ('dir', IsADirectoryError),
+            ('foo/bar', IsADirectoryError),
+            ('foo/baz', FileNotFoundError),
+        ]
+
+        for case in normal_cases:
+            self.assertEqual(file_processor.get_true_path(PurePath(case[0])),
+                             PurePath(case[1]))
+
+        for case in error_cases:
+            with self.assertRaises(case[1]):
+                file_processor.get_true_path(PurePath(case[0]))
 
 
 def create_file_processor_and_run_code(case: str):

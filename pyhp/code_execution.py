@@ -28,7 +28,7 @@ def run_parsed_code(dom: BeautifulSoup,
     output_dom = deepcopy(dom)
     code_blocks = get_code_blocks(output_dom)
 
-    globals_, locals_ = prepare_globals_locals(pyhp_class)
+    globals_, locals_ = prepare_context(pyhp_class)
 
     for code_block in code_blocks:
         success = run_code_block(code_block, globals_, locals_, pyhp_class)
@@ -71,9 +71,9 @@ def run_code_text(code_text: str,
     return success, output
 
 
-def prepare_globals_locals(pyhp_class: 'Pyhp') -> (dict[str, Any],
-                                                   dict[str, Any]):
-    globals_ = {'pyhp': pyhp_class}
-    locals_ = {}
+def prepare_context(pyhp_class: 'Pyhp') -> (dict[str, Any],
+                                            dict[str, Any]):
+    context_globals = {'pyhp': pyhp_class}
+    context_locals = {}
 
-    return globals_, locals_
+    return context_globals, context_locals

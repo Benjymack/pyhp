@@ -58,9 +58,6 @@ class Pyhp:
         and return the output HTML
         """
         new_current_dir = (self._current_dir / PurePath(relative_path)).parent
-        print(f'<b>Including: {relative_path}</b><br>')
-        print(f'<b>Current dir: {self._current_dir}</b><br>')
-        print(f'<b>New dir: {new_current_dir}</b><br>')
 
         new_pyhp_class = Pyhp(new_current_dir, self._file_processor,
                               self._debug, self._cookies, self._get, self._post)
