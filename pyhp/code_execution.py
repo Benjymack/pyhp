@@ -20,7 +20,7 @@ except ImportError:
     from hypertext_processing import get_code_blocks
 
 if TYPE_CHECKING:
-    from .pyhp import Pyhp
+    from .pyhp_interface import Pyhp
 
 
 def run_parsed_code(dom: BeautifulSoup,
