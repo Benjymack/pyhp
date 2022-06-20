@@ -26,7 +26,8 @@ try:
 except ImportError:
     from .mocks import MockFileProcessor
 
-from src.pyhp.text_processing import remove_initial_indentation, prepare_code_text
+from src.pyhp.text_processing import remove_initial_indentation, \
+    prepare_code_text
 from src.pyhp.hypertext_processing import parse_text
 from src.pyhp.code_execution import prepare_context, run_parsed_code
 from src.pyhp.cookies import NewCookie, DeleteCookie
@@ -300,6 +301,9 @@ class TestPyhpRunParsedCode(TestCase):
             pyhp_class = Pyhp(PurePath(), file_processor)
             run_parsed_code(parse_text(case[0]), pyhp_class, file_processor)
             self.assertEqual(pyhp_class.get_redirect_information(), case[1])
+
+    def test_import(self):
+        pass  # TODO: Test import
 
 
 class TestPyhpFileProcessing(TestCase):
