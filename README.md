@@ -4,7 +4,13 @@ PyHP is a Python script that can be used to write Python code in HTML, then exec
 
 ## Getting Started
 ### Installation
-To use this project, clone the repository and install the dependencies.
+To use this project, install it using pip:
+
+```commandline
+pip install python-hypertext-preprocessor
+```
+
+Alternatively, clone the repository and install the dependencies:
 
 ```commandline
 git clone https://github.com/Benjymack/pyhp.git
@@ -13,18 +19,23 @@ pip install -r requirements.txt
 ```
 
 ### Running the example Flask server
-To run the examples, use the following commands:
+To run a simple Flask server with the pip installed version, use the following command:
 
 ```commandline
-set FLASK_APP=phyp:pyhp_flask:create_app('./examples')
-set FLASK_ENV=development
-set FLASK_DEBUG=1
-flask run
+python -m pyhp server path/to/directory
 ```
+
+If you cloned from GitHub:
+
+```commandline
+python -m src.pyhp server examples
+```
+
+In both cases, the server will be available at http://localhost:5000/
 
 ### Running individual files
 To run an individual example file, use the following command:
 
 ```commandline
-python pyhp/pyhp.py ./examples/index.pyhp
+python -m pyhp file path/to/file.pyhp
 ```
