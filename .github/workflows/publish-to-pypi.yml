@@ -21,11 +21,10 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install build twine
 
-      - name: Build and Publish to TestPyPI
+      - name: Build and Publish to PyPI
         env:
-          TWINE_REPOSITORY: testpypi
           TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_TEST_TOKEN }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
         run: |
           python -m build
           python -m twine upload dist/*
