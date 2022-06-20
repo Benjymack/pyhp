@@ -64,7 +64,8 @@ class Pyhp:
 
         return run_parsed_code(
             self._parse_file(PurePath(relative_path)),
-            new_pyhp_class
+            new_pyhp_class,
+            self._file_processor,
         )
 
     def _parse_file(self, relative_path: PurePath) -> BeautifulSoup:

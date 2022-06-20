@@ -3,7 +3,7 @@ Sets up mock classes for the testing of the PyHP framework.
 """
 
 from typing import Union, Optional
-from pathlib import PurePath
+from pathlib import PurePath, Path
 
 from src.pyhp.file_processing import FileProcessor
 
@@ -33,3 +33,6 @@ class MockFileProcessor(FileProcessor):
     def is_pyhp_file(self, path: PurePath) -> bool:
         raise NotImplementedError(
             'Please implement is_pyhp_file for specific test.')
+
+    def get_absolute_path(self, path: PurePath) -> Path:
+        return Path(path)

@@ -40,6 +40,9 @@ class FileProcessor:
 
         raise FileNotFoundError('Unable to find file.')
 
+    def get_absolute_path(self, path: PurePath) -> Path:
+        raise NotImplementedError  # TODO: This is less than ideal
+
 
 class SystemFileProcessor(FileProcessor):
     """
