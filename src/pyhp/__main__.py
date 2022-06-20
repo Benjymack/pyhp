@@ -6,11 +6,11 @@ from argparse import ArgumentParser
 from pathlib import PurePath, Path
 
 try:
-    from pyhp_interface import RootPyhp
+    from pyhp_interface import Pyhp
     from file_processing import SystemFileProcessor
     from pyhp_flask import create_app
 except ImportError:
-    from .pyhp_interface import RootPyhp
+    from .pyhp_interface import Pyhp
     from .file_processing import SystemFileProcessor
     from .pyhp_flask import create_app
 
@@ -35,9 +35,9 @@ if __name__ == '__main__':
 
     if args.action == 'file':
         base_dir = Path(args.file).parent.absolute()
-        root_pyhp = RootPyhp(base_dir, SystemFileProcessor(base_dir),
-                             args.debug)
-        print(root_pyhp.run_file(PurePath(PurePath(args.file).name)))
+        root_pyhp = Pyhp(PurePath(), SystemFileProcessor(base_dir),
+                         args.debug)
+        print(root_pyhp.include(PurePath(args.file).name))
     elif args.action == 'server':
         app = create_app(args.directory)
         app.run(port=args.port, debug=args.debug)

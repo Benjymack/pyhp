@@ -30,7 +30,7 @@ from src.pyhp.text_processing import remove_initial_indentation, prepare_code_te
 from src.pyhp.hypertext_processing import parse_text
 from src.pyhp.code_execution import prepare_context, run_parsed_code
 from src.pyhp.cookies import NewCookie, DeleteCookie
-from src.pyhp.pyhp_interface import Pyhp, RootPyhp
+from src.pyhp.pyhp_interface import Pyhp
 
 
 class TestPyhpRemoveInitialIndentation(TestCase):
@@ -298,26 +298,6 @@ class TestPyhpRunParsedCode(TestCase):
             pyhp_class = Pyhp(PurePath(), file_processor)
             run_parsed_code(parse_text(case[0]), pyhp_class)
             self.assertEqual(pyhp_class.get_redirect_information(), case[1])
-
-
-class TestRootPyhp(TestCase):
-    """Tests that the RootPyhp class functions correctly."""
-
-    def test_run_file(self):
-        file_processor = MockFileProcessor({
-            PurePath('foo.html'): '<p>Hello</p>',
-            PurePath('bar.pyhp'): '<pyhp>x=1\nprint(x + 2)</pyhp>',
-        })
-        root_pyhp = RootPyhp(PurePath(), file_processor)
-
-        self.assertEqual(
-            root_pyhp.run_file(PurePath('foo.html')),
-            '<p>Hello</p>'
-        )
-        self.assertEqual(
-            root_pyhp.run_file(PurePath('bar.pyhp')),
-            '3\n'
-        )
 
 
 class TestPyhpFileProcessing(TestCase):
