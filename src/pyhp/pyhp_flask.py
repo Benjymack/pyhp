@@ -14,11 +14,11 @@ from flask import Flask, request, make_response, Response, redirect, \
     send_from_directory
 
 try:
-    from pyhp_interface import RootPyhp
+    from pyhp_interface import Pyhp
     from file_processing import SystemFileProcessor
     from cookies import NewCookie, DeleteCookie
 except ImportError:
-    from .pyhp_interface import RootPyhp
+    from .pyhp_interface import Pyhp
     from .file_processing import SystemFileProcessor
     from .cookies import NewCookie, DeleteCookie
 
@@ -48,9 +48,9 @@ def create_app(base_dir: str) -> Flask:
 
         current_dir = relative_path.parent
 
-        pyhp_class = RootPyhp(current_dir, file_processor, app.config['DEBUG'],
-                              dict(request.cookies), dict(request.args),
-                              dict(request.form))
+        pyhp_class = Pyhp(current_dir, file_processor, app.config['DEBUG'],
+                          dict(request.cookies), dict(request.args),
+                          dict(request.form))
 
         return process_request(file_processor,
                                PurePath(relative_path.name),
@@ -60,11 +60,11 @@ def create_app(base_dir: str) -> Flask:
 
 
 def process_request(file_processor: SystemFileProcessor,
-                    relative_path: PurePath, pyhp_class: RootPyhp) -> Response:
+                    relative_path: PurePath, pyhp_class: Pyhp) -> Response:
     """Process a request."""
 
     if file_processor.is_pyhp_file(relative_path):
-        page_text = pyhp_class.run_file(relative_path)
+        page_text = pyhp_class.include(str(relative_path))
         status_code = 200  # TODO: Change, allow for custom status codes
 
         return redirect_or_create_response(

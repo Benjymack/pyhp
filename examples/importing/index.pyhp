@@ -1,0 +1,18 @@
+<pyhp>
+import os
+import sys
+
+print('The current working directory is:', os.getcwd())
+print(os.listdir())
+print('The current path is:', sys.path)
+
+try:
+    import maths
+    print(maths.add(1,2))
+    print(maths.multiply(3,4))
+except ImportError:
+    print('Module maths not found')
+
+import foo.bar
+print('Imported foo.bar')
+</pyhp>

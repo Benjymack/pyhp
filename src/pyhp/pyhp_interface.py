@@ -18,7 +18,7 @@ except ImportError:
     from .cookies import NewCookie, DeleteCookie
     from .hypertext_processing import parse_text
 
-__all__ = ['Pyhp', 'RootPyhp']
+__all__ = ['Pyhp']
 
 
 class Pyhp:
@@ -64,7 +64,8 @@ class Pyhp:
 
         return run_parsed_code(
             self._parse_file(PurePath(relative_path)),
-            new_pyhp_class
+            new_pyhp_class,
+            self._file_processor,
         )
 
     def _parse_file(self, relative_path: PurePath) -> BeautifulSoup:
@@ -127,13 +128,3 @@ class Pyhp:
     def post(self) -> dict[str, str]:
         """Return the POST data."""
         return self._post
-
-
-class RootPyhp(Pyhp):
-    """
-    The interface for the PyHP file to interact with the server,
-    and the web page, with the ability to run files.
-    """
-    def run_file(self, relative_path: PurePath):
-        """Run the file."""
-        return run_parsed_code(self._parse_file(relative_path), self)

@@ -10,7 +10,7 @@ print('Cookies:', pyhp.cookies, end='<br>')
 print('Get:', pyhp.get, end='<br>')
 print('Post:', pyhp.post, end='<br>')
 
-import examples.thing as thing  # TODO: Fix this issue - you shouldn't have to prefix it with examples.
+import thing
 thing.f()
 
 </pyhp>
