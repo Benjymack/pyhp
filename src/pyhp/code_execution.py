@@ -13,11 +13,11 @@ from typing import TYPE_CHECKING, Any
 from bs4 import BeautifulSoup, Tag
 
 try:
-    from pyhp.text_processing import prepare_code_block
-    from pyhp.hypertext_processing import get_code_blocks
-except ImportError:
     from text_processing import prepare_code_block
     from hypertext_processing import get_code_blocks
+except ImportError:
+    from .text_processing import prepare_code_block
+    from .hypertext_processing import get_code_blocks
 
 if TYPE_CHECKING:
     from .pyhp_interface import Pyhp

@@ -14,8 +14,8 @@ from flask import Flask, request, make_response, Response, redirect, \
     send_from_directory
 
 try:
-    from pyhp import RootPyhp
-    from pyhp.file_processing import SystemFileProcessor
+    from pyhp_interface import RootPyhp
+    from file_processing import SystemFileProcessor
     from cookies import NewCookie, DeleteCookie
 except ImportError:
     from .pyhp_interface import RootPyhp

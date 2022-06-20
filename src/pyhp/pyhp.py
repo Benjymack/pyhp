@@ -6,11 +6,11 @@ from argparse import ArgumentParser
 from pathlib import PurePath, Path
 
 try:
-    from pyhp.pyhp_interface import Pyhp
-    from pyhp.file_processing import SystemFileProcessor
+    from pyhp_interface import Pyhp
+    from file_processing import SystemFileProcessor
 except ImportError:
     from .pyhp_interface import Pyhp
-    from pyhp.file_processing import SystemFileProcessor
+    from .file_processing import SystemFileProcessor
 
 
 if __name__ == '__main__':

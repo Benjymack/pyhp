@@ -5,7 +5,7 @@ Sets up mock classes for the testing of the PyHP framework.
 from typing import Union, Optional
 from pathlib import PurePath
 
-from pyhp.file_processing import FileProcessor
+from src.pyhp.file_processing import FileProcessor
 
 
 class MockFileProcessor(FileProcessor):
