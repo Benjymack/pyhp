@@ -82,9 +82,9 @@ def prepare_context(pyhp_class: 'Pyhp',
     context_locals = {}
 
     # TODO: This is potentially a security flaw
-    current_dir = file_processor.get_absolute_path(pyhp_class.current_dir)
+    current_dir = str(file_processor.get_absolute_path(pyhp_class.current_dir))
 
     if current_dir not in sys.path:
-        sys.path.append(str(current_dir))
+        sys.path.append(current_dir)
 
     return context_globals, context_locals
