@@ -65,5 +65,6 @@ class SystemFileProcessor(FileProcessor):
         absolute_path = (self._base_dir / path).resolve()
         if self._base_dir not in absolute_path.parents and \
                 self._base_dir != absolute_path:
-            raise RuntimeError('Path is outside of base directory.')
+            raise RuntimeError(f'Path ({absolute_path}) is outside of base '
+                               f'directory ({self._base_dir}).')
         return absolute_path
