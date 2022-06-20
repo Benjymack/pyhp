@@ -12,4 +12,7 @@ try:
     print(maths.multiply(3,4))
 except ImportError:
     print('Module maths not found')
+
+import foo.bar
+print('Imported foo.bar')
 </pyhp>
