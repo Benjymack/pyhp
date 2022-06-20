@@ -26,11 +26,11 @@ try:
 except ImportError:
     from .mocks import MockFileProcessor
 
-from pyhp.text_processing import remove_initial_indentation, prepare_code_text
-from pyhp.hypertext_processing import parse_text
-from pyhp.code_execution import prepare_context, run_parsed_code
-from pyhp.cookies import NewCookie, DeleteCookie
-from pyhp.pyhp_interface import Pyhp, RootPyhp
+from src.pyhp.text_processing import remove_initial_indentation, prepare_code_text
+from src.pyhp.hypertext_processing import parse_text
+from src.pyhp.code_execution import prepare_context, run_parsed_code
+from src.pyhp.cookies import NewCookie, DeleteCookie
+from src.pyhp.pyhp_interface import Pyhp, RootPyhp
 
 
 class TestPyhpRemoveInitialIndentation(TestCase):
