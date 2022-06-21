@@ -37,7 +37,7 @@ if __name__ == '__main__':
         base_dir = Path(args.file).parent.absolute()
         root_pyhp = Pyhp(PurePath(), SystemFileProcessor(base_dir),
                          args.debug)
-        print(root_pyhp.include(PurePath(args.file).name))
+        print(root_pyhp.run(PurePath(args.file).name))
     elif args.action == 'server':
         app = create_app(args.directory)
         app.run(port=args.port, debug=args.debug)
