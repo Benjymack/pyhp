@@ -55,16 +55,23 @@ class Pyhp:
     def include(self, relative_path: str) -> str:
         """
         Include another pyhp file into the current one,
-        and return the output HTML
+        and return the output HTML.
         """
         new_current_dir = (self._current_dir / PurePath(relative_path)).parent
 
         new_pyhp_class = Pyhp(new_current_dir, self._file_processor,
                               self._debug, self._cookies, self._get, self._post)
 
+        return new_pyhp_class.run(relative_path)
+
+    def run(self, relative_path: str) -> str:
+        """
+        Runs another pyhp file in the context of the current one,
+        and return the output HTML.
+        """
         return run_parsed_code(
             self._parse_file(PurePath(relative_path)),
-            new_pyhp_class,
+            self,
             self._file_processor,
         )
 

@@ -64,7 +64,7 @@ def process_request(file_processor: SystemFileProcessor,
     """Process a request."""
 
     if file_processor.is_pyhp_file(relative_path):
-        page_text = pyhp_class.include(str(relative_path))
+        page_text = pyhp_class.run(str(relative_path))
         status_code = 200  # TODO: Change, allow for custom status codes
 
         return redirect_or_create_response(
