@@ -15,11 +15,9 @@ from bs4 import BeautifulSoup, Tag
 try:
     from text_processing import prepare_code_block
     from hypertext_processing import get_code_blocks
-    from file_processing import FileProcessor
 except ImportError:
     from .text_processing import prepare_code_block
     from .hypertext_processing import get_code_blocks
-    from .file_processing import FileProcessor
 
 if TYPE_CHECKING:
     from .pyhp_interface import Pyhp

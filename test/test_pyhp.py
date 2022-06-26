@@ -110,7 +110,7 @@ class TestPyhpPrepareContext(TestCase):
     def test_typical_globals(self):
         file_processor = MockFileProcessor()
         pyhp_class = Pyhp(PurePath(), file_processor)
-        self.assertIs(pyhp_class._prepare_context()[0]['pyhp'],
+        self.assertIs(pyhp_class.globals['pyhp'],
                       pyhp_class)
 
 

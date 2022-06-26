@@ -2,11 +2,11 @@
 Interface for the PyHP programs.
 """
 
+import sys
 from typing import Optional, Any
 from pathlib import PurePath
 from bs4 import BeautifulSoup
 import markupsafe
-import sys
 
 try:
     from file_processing import FileProcessor
