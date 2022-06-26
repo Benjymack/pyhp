@@ -65,7 +65,7 @@ class Pyhp:
         new_pyhp_class = Pyhp(new_current_dir, self._file_processor,
                               self._debug, self._cookies, self._get, self._post)
 
-        return new_pyhp_class.run(relative_path)
+        return new_pyhp_class.run(PurePath(relative_path).name)
 
     def run(self, relative_path: str) -> str:
         """
