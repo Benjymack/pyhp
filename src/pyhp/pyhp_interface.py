@@ -2,7 +2,8 @@
 Interface for the PyHP programs.
 """
 
-from typing import Optional
+import sys
+from typing import Optional, Any
 from pathlib import PurePath
 from bs4 import BeautifulSoup
 import markupsafe
@@ -48,6 +49,8 @@ class Pyhp:
 
         self._redirect_info: Optional[(str, int)] = None
 
+        self.globals, self.locals = self._prepare_context()
+
     def display(self, relative_path: str):
         """Include another pyhp file and print it."""
         print(self.include(relative_path), end='')
@@ -62,7 +65,7 @@ class Pyhp:
         new_pyhp_class = Pyhp(new_current_dir, self._file_processor,
                               self._debug, self._cookies, self._get, self._post)
 
-        return new_pyhp_class.run(relative_path)
+        return new_pyhp_class.run(PurePath(relative_path).name)
 
     def run(self, relative_path: str) -> str:
         """
@@ -72,8 +75,20 @@ class Pyhp:
         return run_parsed_code(
             self._parse_file(PurePath(relative_path)),
             self,
-            self._file_processor,
         )
+
+    def _prepare_context(self) -> (dict[str, Any], dict[str, Any]):
+        context_globals = {'pyhp': self}
+        context_locals = {}
+
+        # TODO: This is potentially a security flaw
+        current_dir = str(
+            self._file_processor.get_absolute_path(self.current_dir))
+
+        if current_dir not in sys.path:
+            sys.path.append(current_dir)
+
+        return context_globals, context_locals
 
     def _parse_file(self, relative_path: PurePath) -> BeautifulSoup:
         return parse_text(self._load_file(relative_path))
