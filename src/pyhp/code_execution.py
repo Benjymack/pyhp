@@ -64,7 +64,7 @@ def run_code_text(code_text: str,
             exec(code_text, globals_, locals_)  # pylint: disable=exec-used
     except Exception:  # pylint: disable=broad-except
         success = False
-        output = f'<pre>{format_exc()}</pre>'
+        output = f'{output_text.getvalue()}<pre>{format_exc()}</pre>'
     else:
         success = True
         output = output_text.getvalue()
