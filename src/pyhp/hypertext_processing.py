@@ -2,7 +2,7 @@
 Sets up functions for processing DOMs and hypertext.
 """
 
-# pylint: disable=missing-function-docstring
+# pylint: disable=missing-function-docstring, too-few-public-methods
 
 import re
 
@@ -12,6 +12,12 @@ REGEX = re.compile(rf'<{PYHP_TAG}>([\S\s]*?)</{PYHP_TAG}>')
 
 
 class UglySoup:
+    """
+    A regex-based parser for PyHP code blocks.
+
+    Does NOT support nested PyHP code blocks
+    (or printing </pyhp> tags within PyHP code blocks).
+    """
     def __init__(self, html: str):
         self._sections: list[tuple[bool, str]] = []
 
