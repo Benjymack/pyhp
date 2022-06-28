@@ -13,6 +13,9 @@ print('Post:', pyhp.post, end='<br>')
 import thing
 thing.f()
 
+print(1 < 2)
+print(1 >= 1)
+
 </pyhp>
 
 <img src="./snake.jpg" alt="A snake"> <!-- https://www.pexels.com/photo/green-snake-45246/ -->

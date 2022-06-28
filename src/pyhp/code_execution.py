@@ -6,50 +6,48 @@ Sets up functions for executing PyHP code blocks and code text.
 
 from io import StringIO
 from contextlib import redirect_stdout
-from copy import deepcopy
 from traceback import format_exc
 from typing import TYPE_CHECKING, Any
 
-from bs4 import BeautifulSoup, Tag
-
 try:
-    from text_processing import prepare_code_block
-    from hypertext_processing import get_code_blocks
+    from text_processing import prepare_code_text
+    from hypertext_processing import UglySoup
 except ImportError:
-    from .text_processing import prepare_code_block
-    from .hypertext_processing import get_code_blocks
+    from .text_processing import prepare_code_text
+    from .hypertext_processing import UglySoup
 
 if TYPE_CHECKING:
     from .pyhp_interface import Pyhp
 
 
-def run_parsed_code(dom: BeautifulSoup,
-                    pyhp_class: 'Pyhp') -> str:
-    output_dom = deepcopy(dom)
-    code_blocks = get_code_blocks(output_dom)
+def run_parsed_code(dom: UglySoup, pyhp_class: 'Pyhp') -> str:
+    output_text = []
 
-    for code_block in code_blocks:
-        success = run_code_block(code_block, pyhp_class.globals,
-                                 pyhp_class.locals, pyhp_class)
+    for section in dom.sections:
+        success, output = run_section(section, pyhp_class)
+
+        output_text.append(output)
 
         if not success:
             break
 
-    return str(output_dom)
+    return ''.join(output_text)
 
 
-def run_code_block(code_block: Tag, globals_: dict[str, Any],
-                   locals_: dict[str, Any], pyhp_class: 'Pyhp') -> bool:
-    code_text = prepare_code_block(code_block)
+def run_section(section: tuple[bool, str],
+                pyhp_class: 'Pyhp') -> (bool, str):
+    is_pyhp_code, text = section
 
-    success, output = run_code_text(code_text, globals_, locals_)
+    if is_pyhp_code:
+        success, output = run_code_text(prepare_code_text(text),
+                                        pyhp_class.globals, pyhp_class.locals)
 
-    if not success and not pyhp_class.debug:
-        raise RuntimeError(output)
+        if not success and not pyhp_class.debug:
+            raise RuntimeError(output)
 
-    code_block.replace_with(BeautifulSoup(output, 'html.parser'))
+        return success, output
 
-    return success
+    return True, text
 
 
 def run_code_text(code_text: str,

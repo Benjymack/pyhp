@@ -4,15 +4,6 @@ Sets up functions for processing PyHP code blocks and code text.
 
 # pylint: disable=missing-function-docstring
 
-from bs4 import Tag
-
-
-def prepare_code_block(code_block: Tag) -> str:
-    code_text = code_block.decode_contents()
-    prepared_code_text = prepare_code_text(code_text)
-
-    return prepared_code_text
-
 
 def prepare_code_text(code_text: str) -> str:
     code_text = code_text.lstrip('\n').rstrip('\n')

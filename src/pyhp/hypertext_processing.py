@@ -2,17 +2,34 @@
 Sets up functions for processing DOMs and hypertext.
 """
 
-# pylint: disable=missing-function-docstring
+# pylint: disable=missing-function-docstring, too-few-public-methods
 
-from bs4 import BeautifulSoup, Tag
-from bs4.element import ResultSet
+import re
+
 
 PYHP_TAG = 'pyhp'
+REGEX = re.compile(rf'<{PYHP_TAG}>([\S\s]*?)</{PYHP_TAG}>')
 
 
-def get_code_blocks(dom: BeautifulSoup) -> ResultSet[Tag]:
-    return dom.select(f'{PYHP_TAG}:not({PYHP_TAG} *)')
+class UglySoup:
+    """
+    A regex-based parser for PyHP code blocks.
 
+    Does NOT support nested PyHP code blocks
+    (or printing </pyhp> tags within PyHP code blocks).
+    """
+    def __init__(self, html: str):
+        self._sections: list[tuple[bool, str]] = []
 
-def parse_text(text: str) -> BeautifulSoup:
-    return BeautifulSoup(text, 'html.parser')
+        prev_end = 0
+
+        for match in REGEX.finditer(html):
+            self._sections.append((False, html[prev_end:match.start()]))
+            self._sections.append((True, match.group(1)))
+            prev_end = match.end()
+
+        self._sections.append((False, html[prev_end:]))
+
+    @property
+    def sections(self):
+        return self._sections
