@@ -28,7 +28,7 @@ except ImportError:
 
 from src.pyhp.text_processing import remove_initial_indentation, \
     prepare_code_text
-from src.pyhp.hypertext_processing import parse_text
+from src.pyhp.hypertext_processing import UglySoup
 from src.pyhp.code_execution import run_parsed_code
 from src.pyhp.cookies import NewCookie, DeleteCookie
 from src.pyhp.pyhp_interface import Pyhp
@@ -169,7 +169,7 @@ class TestPyhpRunParsedCode(TestCase):
         for case in cases:
             file_processor = MockFileProcessor()
             pyhp_class = Pyhp(PurePath(), file_processor)
-            run_parsed_code(parse_text(case[0]), pyhp_class)
+            run_parsed_code(UglySoup(case[0]), pyhp_class)
             self.assertEqual(case[1], pyhp_class.get_new_cookies())
 
     def test_delete_cookies(self):
@@ -178,7 +178,7 @@ class TestPyhpRunParsedCode(TestCase):
         pyhp_class = Pyhp(PurePath(), file_processor)
         code = '<pyhp>pyhp.set_cookie("foo", value="bar")\n' \
                'pyhp.delete_cookie("foo")</pyhp>'
-        run_parsed_code(parse_text(code), pyhp_class)
+        run_parsed_code(UglySoup(code), pyhp_class)
         self.assertEqual({'foo': NewCookie('foo', 'bar')},
                          pyhp_class.get_new_cookies())
         self.assertEqual({'foo': DeleteCookie('foo')},
@@ -187,14 +187,14 @@ class TestPyhpRunParsedCode(TestCase):
         # Start with a cookie then delete it
         pyhp_class = Pyhp(PurePath(), file_processor, cookies={'foo': 'bar'})
         code = '<pyhp>pyhp.delete_cookie("foo")</pyhp>'
-        run_parsed_code(parse_text(code), pyhp_class)
+        run_parsed_code(UglySoup(code), pyhp_class)
         self.assertEqual({'foo': DeleteCookie('foo')},
                          pyhp_class.get_delete_cookies())
 
         # Delete an unexisting cookie
         pyhp_class = Pyhp(PurePath(), file_processor)
         code = '<pyhp>pyhp.delete_cookie("foo")</pyhp>'
-        run_parsed_code(parse_text(code), pyhp_class)
+        run_parsed_code(UglySoup(code), pyhp_class)
         # TODO: Should this be empty?
         self.assertEqual({'foo': DeleteCookie('foo')},
                          pyhp_class.get_delete_cookies())
@@ -209,7 +209,7 @@ class TestPyhpRunParsedCode(TestCase):
         for case in cases:
             file_processor = MockFileProcessor()
             pyhp_class = Pyhp(PurePath(), file_processor, get=case[1])
-            self.assertEqual(run_parsed_code(parse_text(case[0]), pyhp_class),
+            self.assertEqual(run_parsed_code(UglySoup(case[0]), pyhp_class),
                              case[2])
 
     def test_post_parameters(self):
@@ -222,7 +222,7 @@ class TestPyhpRunParsedCode(TestCase):
         for case in cases:
             file_processor = MockFileProcessor()
             pyhp_class = Pyhp(PurePath(), file_processor, post=case[1])
-            self.assertEqual(run_parsed_code(parse_text(case[0]), pyhp_class),
+            self.assertEqual(run_parsed_code(UglySoup(case[0]), pyhp_class),
                              case[2])
 
     def test_include(self):
@@ -236,12 +236,12 @@ class TestPyhpRunParsedCode(TestCase):
         pyhp_class = Pyhp(PurePath(), file_processor)
 
         self.assertEqual(
-            run_parsed_code(parse_text('<pyhp>pyhp.display("foo.html")</pyhp>'),
+            run_parsed_code(UglySoup('<pyhp>pyhp.display("foo.html")</pyhp>'),
                             pyhp_class),
             '<p>Hello</p>'
         )
         self.assertEqual(
-            run_parsed_code(parse_text('<pyhp>pyhp.display("bar.pyhp")</pyhp>'),
+            run_parsed_code(UglySoup('<pyhp>pyhp.display("bar.pyhp")</pyhp>'),
                             pyhp_class),
             '3\n'
         )
@@ -255,7 +255,7 @@ class TestPyhpRunParsedCode(TestCase):
 
         for case in cases:
             file_processor = MockFileProcessor()
-            dom = parse_text(case[0])
+            dom = UglySoup(case[0])
 
             # Run with debug
             pyhp_class = Pyhp(PurePath(), file_processor, debug=True)
@@ -296,7 +296,7 @@ class TestPyhpRunParsedCode(TestCase):
         for case in cases:
             file_processor = MockFileProcessor()
             pyhp_class = Pyhp(PurePath(), file_processor)
-            run_parsed_code(parse_text(case[0]), pyhp_class)
+            run_parsed_code(UglySoup(case[0]), pyhp_class)
             self.assertEqual(pyhp_class.get_redirect_information(), case[1])
 
     def test_import(self):

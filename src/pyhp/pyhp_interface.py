@@ -5,19 +5,18 @@ Interface for the PyHP programs.
 import sys
 from typing import Optional, Any
 from pathlib import PurePath
-from bs4 import BeautifulSoup
 import markupsafe
 
 try:
     from file_processing import FileProcessor
     from code_execution import run_parsed_code
     from cookies import NewCookie, DeleteCookie
-    from hypertext_processing import parse_text
+    from hypertext_processing import UglySoup
 except ImportError:
     from .file_processing import FileProcessor
     from .code_execution import run_parsed_code
     from .cookies import NewCookie, DeleteCookie
-    from .hypertext_processing import parse_text
+    from .hypertext_processing import UglySoup
 
 __all__ = ['Pyhp']
 
@@ -90,8 +89,8 @@ class Pyhp:
 
         return context_globals, context_locals
 
-    def _parse_file(self, relative_path: PurePath) -> BeautifulSoup:
-        return parse_text(self._load_file(relative_path))
+    def _parse_file(self, relative_path: PurePath) -> UglySoup:
+        return UglySoup(self._load_file(relative_path))
 
     def _load_file(self, relative_path: PurePath) -> str:
         path = self._current_dir / relative_path
