@@ -302,6 +302,20 @@ class TestPyhpRunParsedCode(TestCase):
     def test_import(self):
         pass  # TODO: Test import
 
+    def test_special_characters(self):
+        cases = [
+            ('<pyhp>print("Hello World!")</pyhp>', 'Hello World!\n'),
+            ('<pyhp>print(1 < 2)</pyhp>', 'True\n'),
+            ('<pyhp>print(1 >= 1)</pyhp>', 'True\n'),
+            ('<pyhp>print(1 > 2)</pyhp>', 'False\n'),
+            ('<pyhp>print(1 <= 2)</pyhp>', 'True\n'),
+            ('<pyhp>print(1 == 2 or 1 >= 1)</pyhp>', 'True\n'),
+        ]
+
+        for case in cases:
+            self.assertEqual(case[1],
+                             create_file_processor_and_run_code(case[0]))
+
 
 class TestPyhpFileProcessing(TestCase):
     """Tests that PyHP can load and execute files."""
