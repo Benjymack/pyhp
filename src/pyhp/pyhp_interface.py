@@ -48,6 +48,8 @@ class Pyhp:
 
         self._redirect_info: Optional[(str, int)] = None
 
+        self._status_code = 200
+
         self.globals, self.locals = self._prepare_context()
 
     def display(self, relative_path: str):
@@ -98,6 +100,7 @@ class Pyhp:
 
     def redirect(self, url: str, status_code: int = 302):
         """Redirect to another url."""
+        # TODO: Combine this with the status_code property
         self._redirect_info = (url, status_code)
 
     def get_redirect_information(self) -> Optional[tuple[str, int]]:
@@ -149,3 +152,13 @@ class Pyhp:
     def post(self) -> dict[str, str]:
         """Return the POST data."""
         return self._post
+
+    @property
+    def status_code(self) -> int:
+        """Return the status code (default 200)."""
+        return self._status_code
+
+    @status_code.setter
+    def status_code(self, value: int):
+        """Set the status code."""
+        self._status_code = value
