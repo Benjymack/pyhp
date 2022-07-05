@@ -65,10 +65,9 @@ def process_request(file_processor: SystemFileProcessor,
 
     if file_processor.is_pyhp_file(relative_path):
         page_text = pyhp_class.run(str(relative_path))
-        status_code = 200  # TODO: Change, allow for custom status codes
 
         return redirect_or_create_response(
-            page_text, status_code,
+            page_text, pyhp_class.status_code,
             pyhp_class.get_new_cookies(),
             pyhp_class.get_delete_cookies(),
             pyhp_class.get_redirect_information())
