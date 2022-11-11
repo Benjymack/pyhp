@@ -14,6 +14,7 @@ REGEX = re.compile(rf'<{PYHP_TAG}>([\S\s]*?)</{PYHP_TAG}>')
 
 @dataclass
 class Section:
+    """Represents a section of either hypertext or PyHP code."""
     is_pyhp_code: bool
     text: str
 
