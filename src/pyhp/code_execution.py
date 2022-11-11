@@ -11,10 +11,10 @@ from typing import TYPE_CHECKING, Any
 
 try:
     from text_processing import prepare_code_text
-    from hypertext_processing import UglySoup
+    from hypertext_processing import UglySoup, Section
 except ImportError:
     from .text_processing import prepare_code_text
-    from .hypertext_processing import UglySoup
+    from .hypertext_processing import UglySoup, Section
 
 if TYPE_CHECKING:
     from .pyhp_interface import Pyhp
@@ -34,12 +34,10 @@ def run_parsed_code(dom: UglySoup, pyhp_class: 'Pyhp') -> str:
     return ''.join(output_text)
 
 
-def run_section(section: tuple[bool, str],
+def run_section(section: Section,
                 pyhp_class: 'Pyhp') -> (bool, str):
-    is_pyhp_code, text = section
-
-    if is_pyhp_code:
-        success, output = run_code_text(prepare_code_text(text),
+    if section.is_pyhp_code:
+        success, output = run_code_text(prepare_code_text(section.text),
                                         pyhp_class.globals, pyhp_class.locals)
 
         if not success and not pyhp_class.debug:
@@ -47,7 +45,7 @@ def run_section(section: tuple[bool, str],
 
         return success, output
 
-    return True, text
+    return True, section.text
 
 
 def run_code_text(code_text: str,
