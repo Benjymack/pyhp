@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - master
-      - 6-add-documentation
 
 jobs:
   deploy:
