@@ -19,7 +19,7 @@ jobs:
           echo `pwd`/mdbook >> $GITHUB_PATH
       - name: Deploy to GitHub Pages
         env:
-          GITHUB_TOKEN: ${{ secrets.GB_PAGES_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAGES_TOKEN }}
         run: |
           cd docs
           mdbook build
