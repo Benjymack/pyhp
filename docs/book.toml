@@ -1,0 +1,6 @@
+[book]
+authors = ["Benjy Smith"]
+language = "en"
+multilingual = false
+src = "src"
+title = "PyHP Documentation"

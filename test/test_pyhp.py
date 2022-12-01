@@ -225,9 +225,6 @@ class TestPyhpRunParsedCode(TestCase):
             self.assertEqual(run_parsed_code(UglySoup(case[0]), pyhp_class),
                              case[2])
 
-    def test_include(self):
-        pass  # TODO: Finish
-
     def test_display(self):
         file_processor = MockFileProcessor({
             PurePath('foo.html'): '<p>Hello</p>',
