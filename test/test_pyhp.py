@@ -151,7 +151,16 @@ class TestPyhpRunParsedCode(TestCase):
                              expected)
 
     def test_get_cookies(self):
-        pass  # TODO: Finish
+        cases = [
+            ({'foo': 'bar'},
+             '<pyhp>print(pyhp.cookies["foo"])</pyhp>', 'bar\n'),
+        ]
+
+        for case in cases:
+            with self.subTest(case=case):
+                file_processor = MockFileProcessor(case[1])
+                pyhp_class = Pyhp(PurePath(), file_processor, cookies=case[0])
+                self.assertEqual(pyhp_class.include('index.pyhp'), case[2])
 
     def test_set_cookies(self):
         cases = [
